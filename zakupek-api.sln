@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apps", "apps", "{709A3213-063D-4468-A6CC-4F7FD4D17CBE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{71E69FDE-933F-4672-82FE-D357C37CDFFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zakupek-api", "apps\src\zakupek-api\zakupek-api.csproj", "{6FCFD183-4F00-4B65-93F2-719878322603}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{685674E7-931E-4963-A084-1FDFEE932FAF}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "extensions", "extensions", "{A0C7EBFD-74A6-428A-8849-C1D17BC2F9E2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Zakupek.Db", "Zakupek.Db", "{8612D8E2-C823-4B70-AB09-F1E25657E815}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C94956D3-A524-4ADA-B11F-D55E67D57B70}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zakupek.Db", "extensions\Zakupek.Db\src\Zakupek.Db\Zakupek.Db.csproj", "{D682BB1D-3781-4E6E-956C-2855DD6551E2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{71E69FDE-933F-4672-82FE-D357C37CDFFA} = {709A3213-063D-4468-A6CC-4F7FD4D17CBE}
+		{6FCFD183-4F00-4B65-93F2-719878322603} = {71E69FDE-933F-4672-82FE-D357C37CDFFA}
+		{8612D8E2-C823-4B70-AB09-F1E25657E815} = {A0C7EBFD-74A6-428A-8849-C1D17BC2F9E2}
+		{C94956D3-A524-4ADA-B11F-D55E67D57B70} = {8612D8E2-C823-4B70-AB09-F1E25657E815}
+		{D682BB1D-3781-4E6E-956C-2855DD6551E2} = {C94956D3-A524-4ADA-B11F-D55E67D57B70}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6FCFD183-4F00-4B65-93F2-719878322603}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FCFD183-4F00-4B65-93F2-719878322603}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FCFD183-4F00-4B65-93F2-719878322603}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FCFD183-4F00-4B65-93F2-719878322603}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D682BB1D-3781-4E6E-956C-2855DD6551E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D682BB1D-3781-4E6E-956C-2855DD6551E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D682BB1D-3781-4E6E-956C-2855DD6551E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D682BB1D-3781-4E6E-956C-2855DD6551E2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

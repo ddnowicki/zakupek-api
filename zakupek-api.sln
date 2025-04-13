@@ -7,21 +7,35 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apps", "apps", "{709A3213-0
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{71E69FDE-933F-4672-82FE-D357C37CDFFA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zakupek-api", "apps\src\zakupek-api\zakupek-api.csproj", "{6FCFD183-4F00-4B65-93F2-719878322603}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZakupekApi", "apps\src\ZakupekApi\ZakupekApi.csproj", "{6FCFD183-4F00-4B65-93F2-719878322603}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{685674E7-931E-4963-A084-1FDFEE932FAF}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		.editorconfig = .editorconfig
+		.ai\api-plan.md = .ai\api-plan.md
+		.ai\db-plan.md = .ai\db-plan.md
+		.ai\prd.md = .ai\prd.md
+		.ai\tech-stack.md = .ai\tech-stack.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "extensions", "extensions", "{A0C7EBFD-74A6-428A-8849-C1D17BC2F9E2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Zakupek.Db", "Zakupek.Db", "{8612D8E2-C823-4B70-AB09-F1E25657E815}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{8612D8E2-C823-4B70-AB09-F1E25657E815}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C94956D3-A524-4ADA-B11F-D55E67D57B70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zakupek.Db", "extensions\Zakupek.Db\src\Zakupek.Db\Zakupek.Db.csproj", "{D682BB1D-3781-4E6E-956C-2855DD6551E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZakupekApi.Db", "extensions\Database\src\ZakupekApi.Db\ZakupekApi.Db.csproj", "{F5C03A81-5EB0-4527-8C7B-A3E4CD18275B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Wrapper", "Wrapper", "{E2E494A6-8810-44B9-8246-95356ACEAD4F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8C1F987D-681E-4DC9-A2DF-D047079A532B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZakupekApi.Wrapper", "extensions\Wrapper\src\ZakupekApi.Wrapper\ZakupekApi.Wrapper.csproj", "{D20D2067-E333-46C5-8AE0-02078077E1D2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZakupekApi.Wrapper.Contract", "extensions\Wrapper\src\ZakupekApi.Wrapper.Contract\ZakupekApi.Wrapper.Contract.csproj", "{8F667610-07AF-4948-88AB-9EA95891A1B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZakupekApi.Wrapper.Abstraction", "extensions\Wrapper\src\ZakupekApi.Wrapper.Abstraction\ZakupekApi.Wrapper.Abstraction.csproj", "{D7169CC9-AC31-4315-9285-231D869069B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,16 +50,33 @@ Global
 		{6FCFD183-4F00-4B65-93F2-719878322603} = {71E69FDE-933F-4672-82FE-D357C37CDFFA}
 		{8612D8E2-C823-4B70-AB09-F1E25657E815} = {A0C7EBFD-74A6-428A-8849-C1D17BC2F9E2}
 		{C94956D3-A524-4ADA-B11F-D55E67D57B70} = {8612D8E2-C823-4B70-AB09-F1E25657E815}
-		{D682BB1D-3781-4E6E-956C-2855DD6551E2} = {C94956D3-A524-4ADA-B11F-D55E67D57B70}
+		{F5C03A81-5EB0-4527-8C7B-A3E4CD18275B} = {C94956D3-A524-4ADA-B11F-D55E67D57B70}
+		{E2E494A6-8810-44B9-8246-95356ACEAD4F} = {A0C7EBFD-74A6-428A-8849-C1D17BC2F9E2}
+		{8C1F987D-681E-4DC9-A2DF-D047079A532B} = {E2E494A6-8810-44B9-8246-95356ACEAD4F}
+		{D20D2067-E333-46C5-8AE0-02078077E1D2} = {8C1F987D-681E-4DC9-A2DF-D047079A532B}
+		{8F667610-07AF-4948-88AB-9EA95891A1B7} = {8C1F987D-681E-4DC9-A2DF-D047079A532B}
+		{D7169CC9-AC31-4315-9285-231D869069B7} = {8C1F987D-681E-4DC9-A2DF-D047079A532B}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{6FCFD183-4F00-4B65-93F2-719878322603}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6FCFD183-4F00-4B65-93F2-719878322603}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6FCFD183-4F00-4B65-93F2-719878322603}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6FCFD183-4F00-4B65-93F2-719878322603}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D682BB1D-3781-4E6E-956C-2855DD6551E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D682BB1D-3781-4E6E-956C-2855DD6551E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D682BB1D-3781-4E6E-956C-2855DD6551E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D682BB1D-3781-4E6E-956C-2855DD6551E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5C03A81-5EB0-4527-8C7B-A3E4CD18275B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5C03A81-5EB0-4527-8C7B-A3E4CD18275B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5C03A81-5EB0-4527-8C7B-A3E4CD18275B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5C03A81-5EB0-4527-8C7B-A3E4CD18275B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D20D2067-E333-46C5-8AE0-02078077E1D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D20D2067-E333-46C5-8AE0-02078077E1D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D20D2067-E333-46C5-8AE0-02078077E1D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D20D2067-E333-46C5-8AE0-02078077E1D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F667610-07AF-4948-88AB-9EA95891A1B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F667610-07AF-4948-88AB-9EA95891A1B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F667610-07AF-4948-88AB-9EA95891A1B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F667610-07AF-4948-88AB-9EA95891A1B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7169CC9-AC31-4315-9285-231D869069B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7169CC9-AC31-4315-9285-231D869069B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7169CC9-AC31-4315-9285-231D869069B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7169CC9-AC31-4315-9285-231D869069B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -14,7 +14,7 @@ public class RegisterUserCommand
     
     public int HouseholdSize { get; set; }
     
-    public List<int> Ages { get; set; } = new List<int>();
+    public List<int> Ages { get; set; } = new();
     
-    public List<string> DietaryPreferences { get; set; } = new List<string>();
+    public string DietaryPreferences { get; set; } = null!;
 }

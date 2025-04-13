@@ -2,10 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ZakupekApi.Wrapper.Contract.Commands.Products;
 
-public class UpdateProductCommand
+public class CreateProductCommand
 {
-    public int Id { get; set; }
-    
     [Required]
     public string Name { get; set; } = null!;
 

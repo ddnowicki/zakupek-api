@@ -9,10 +9,13 @@
     <ItemGroup>
       <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
       <PackageReference Include="MediatR" Version="12.5.0" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.8.0" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Database\src\ZakupekApi.Db\ZakupekApi.Db.csproj" />
       <ProjectReference Include="..\ZakupekApi.Wrapper.Abstraction\ZakupekApi.Wrapper.Abstraction.csproj" />
+      <ProjectReference Include="..\ZakupekApi.Wrapper.Contract\ZakupekApi.Wrapper.Contract.csproj" />
     </ItemGroup>
 
 </Project>

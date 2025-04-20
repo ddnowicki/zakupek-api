@@ -2,6 +2,9 @@
 using ZakupekApi.Db.Data;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using ZakupekApi.Wrapper.Abstraction.Authentication;
+using ZakupekApi.Wrapper.Authentication;
+using ZakupekApi.Wrapper.Authentication.Commands;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +14,15 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+});
+
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(RegisterUserCommandHandler).Assembly));
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(LoginUserCommandHandler).Assembly));
 
 builder.Services.AddCors();
 builder.Services.AddControllers();

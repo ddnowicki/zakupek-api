@@ -21,27 +21,21 @@ public class AuthenticationService(AppDbContext dbContext, IConfiguration config
     /// <inheritdoc />
     public async Task<AuthenticationResultDto> RegisterUserAsync(RegisterUserCommand command)
     {
-        // Check if user with the same email already exists
         if (await dbContext.Users.AnyAsync(u => u.Email == command.Email))
         {
             throw new InvalidOperationException("User with this email already exists");
         }
 
-        // Hash the password
         var passwordHash = hashPassword(command.Password);
 
-        // Create a new user
         var user = new User
         {
-            Email = command.Email,
-            HashedPassword = passwordHash,
-            CreatedAt = DateTime.UtcNow,
+            Email = command.Email, HashedPassword = passwordHash, CreatedAt = DateTime.UtcNow,
         };
 
         dbContext.Users.Add(user);
         await dbContext.SaveChangesAsync();
 
-        // Generate JWT token
         var authResult = generateAuthenticationResult(user);
 
         return authResult;
@@ -50,57 +44,45 @@ public class AuthenticationService(AppDbContext dbContext, IConfiguration config
     /// <inheritdoc />
     public async Task<AuthenticationResultDto> LoginAsync(LoginUserCommand command)
     {
-        // Find user by email
         var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == command.Email);
-        
+
         if (user == null)
         {
             throw new UnauthorizedAccessException("Invalid email or password");
         }
 
-        // Verify password hash
         if (!verifyPassword(command.Password, user.HashedPassword))
         {
             throw new UnauthorizedAccessException("Invalid email or password");
         }
 
-        // Generate JWT token
         var authResult = generateAuthenticationResult(user);
 
         return authResult;
     }
 
-    /// <summary>
-    /// Hashes a password using BCrypt
-    /// </summary>
     private string hashPassword(string password)
     {
         return BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(12));
     }
 
-    /// <summary>
-    /// Verifies a password against a hash using BCrypt
-    /// </summary>
     private bool verifyPassword(string password, string passwordHash)
     {
         return BCrypt.Net.BCrypt.Verify(password, passwordHash);
     }
 
-    /// <summary>
-    /// Generates JWT tokens and creates an authentication result
-    /// </summary>
     private AuthenticationResultDto generateAuthenticationResult(User user)
     {
         var jwtSettings = configuration.GetSection("JwtSettings");
-        var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
-        var issuer = jwtSettings["Issuer"] ?? "ZakupekApi";
-        var audience = jwtSettings["Audience"] ?? "ZakupekApiClients";
-
-        var expiryTime = DateTime.UtcNow.AddYears(10);
         
+        var secretKey = jwtSettings["SecretKey"]
+        ?? throw new InvalidOperationException("JWT SecretKey not configured");
+        
+        var expiryTime = DateTime.UtcNow.AddYears(10);
+
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(secretKey);
-        
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new([
@@ -109,22 +91,19 @@ public class AuthenticationService(AppDbContext dbContext, IConfiguration config
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             ]),
             Expires = expiryTime,
-            Issuer = issuer,
-            Audience = audience,
+            Issuer = jwtSettings["Audience"],
+            Audience = jwtSettings["Issuer"],
             SigningCredentials = new(
-                new SymmetricSecurityKey(key), 
+                new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256Signature)
         };
-        
+
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var accessToken = tokenHandler.WriteToken(token);
-        
+
         return new()
         {
-            UserId = user.Id,
-            Email = user.Email,
-            AccessToken = accessToken,
-            ExpiresAt = expiryTime,
+            UserId = user.Id, Email = user.Email, AccessToken = accessToken, ExpiresAt = expiryTime,
         };
     }
 }

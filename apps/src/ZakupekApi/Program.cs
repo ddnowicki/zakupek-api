@@ -1,107 +1,67 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿global using FluentValidation;
+using ErrorOr;
+using FastEndpoints;
+using FastEndpoints.Security;
+using FastEndpoints.Swagger;
+using Microsoft.EntityFrameworkCore;
+using ZakupekApi;
 using ZakupekApi.Db.Data;
-using Microsoft.OpenApi.Models;
-using System.Reflection;
-using ZakupekApi.Wrapper.Abstraction.Authentication;
-using ZakupekApi.Wrapper.Authentication;
-using ZakupekApi.Wrapper.Authentication.Commands;
+using ZakupekApi.Wrapper.Abstraction.Auth;
+using ZakupekApi.Wrapper.Auth;
+using ZakupekApi.Wrapper.Contract.Auth.Validation;
 
-var builder = WebApplication.CreateBuilder(args);
+var bld = WebApplication.CreateBuilder();
 
-builder.Configuration.AddEnvironmentVariables();
+var jwtSettings = bld.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["SecretKey"] ?? throw new ArgumentNullException();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = bld.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+bld.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(
+        connectionString,
+        ServerVersion.AutoDetect(connectionString),
+        mySqlOptions => mySqlOptions
+            .EnableRetryOnFailure(
+                maxRetryCount: 3,
+                maxRetryDelay: TimeSpan.FromSeconds(5),
+                errorNumbersToAdd: null)
+            .CommandTimeout(30)
+    ));
 
-builder.Services.AddMediatR(cfg => {
-    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
-});
+bld.Services
+    .AddAuthenticationJwtBearer(s => s.SigningKey = secretKey)
+    .Configure<JwtCreationOptions>(o => o.SigningKey = secretKey)
+    .AddAuthorization()
+    .AddFastEndpoints(options => { options.Assemblies = [typeof(LoginRequestValidator).Assembly]; })
+    .SwaggerDocument()
+    .Scan(scan => scan
+        .FromAssembliesOf(typeof(AuthService), typeof(IAuthService))
+        .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service")))
+        .AsImplementedInterfaces()
+        .WithScopedLifetime());
 
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(RegisterUserCommandHandler).Assembly));
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(LoginUserCommandHandler).Assembly));
-
-builder.Services.AddCors();
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Zakupek API",
-        Version = "v1",
-        Description = "API for Zakupek shopping list management application"
-    });
-    
-    // Use fully qualified type names for schemas to prevent conflicts
-    options.CustomSchemaIds(type =>
-    {
-        // For nested types like Command and Result inside static classes
-        if (type.DeclaringType != null)
-        {
-            return $"{type.DeclaringType.FullName}.{type.Name}";
-        }
-        
-        return type.FullName;
-    });
-    
-    // Configure security for Swagger UI
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "JWT Authorization header using the Bearer scheme."
-    });
-
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
+var app = bld.Build();
+app.UseAuthentication()
+    .UseAuthorization()
+    .UseFastEndpoints(
+            c =>
             {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-
-    // Include XML comments
-    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFilename);
-    if (File.Exists(xmlPath))
-    {
-        options.IncludeXmlComments(xmlPath);
-    }
-});
-
-var app = builder.Build();
-
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
-}
-
-app.UseCors(x => x
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader());
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.MapControllers();
+                c.Errors.UseProblemDetails();
+                c.Endpoints.Configurator =
+                    ep =>
+                    {
+                        if (ep.ResDtoType.IsAssignableTo(typeof(IErrorOr)))
+                        {
+                            ep.DontAutoSendResponse();
+                            ep.PostProcessor<ResponseSender>(Order.After);
+                            ep.Description(
+                                b => b.ClearDefaultProduces()
+                                    .Produces(200, ep.ResDtoType.GetGenericArguments()[0])
+                                    .ProducesProblemDetails());
+                        }
+                    };
+            })
+    .UseSwaggerGen();
 
 app.Run();

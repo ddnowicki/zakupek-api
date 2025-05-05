@@ -7,7 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="FastEndpoints" Version="6.0.0" />
       <PackageReference Include="MediatR" Version="12.5.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Auth\" />
     </ItemGroup>
 
 </Project>

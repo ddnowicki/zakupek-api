@@ -1,10 +1,11 @@
 ﻿using ZakupekApi.Wrapper.Contract.Auth.Response;
+using ZakupekApi.Wrapper.Contract.Auth.Request;
 using ErrorOr;
 
 namespace ZakupekApi.Wrapper.Abstraction.Auth;
 
 public interface IAuthService
 {
-    public Task<ErrorOr<AuthResponse>> Login(string email, string password);
-    public Task<ErrorOr<AuthResponse>> Register(string email, string password);
+    Task<ErrorOr<AuthResponse>> Login(LoginRequest request);
+    Task<ErrorOr<AuthResponse>> Register(RegisterRequest request);
 }

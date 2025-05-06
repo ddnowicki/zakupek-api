@@ -14,9 +14,12 @@ public class LoginEndpoint : Endpoint<LoginRequest, ErrorOr<AuthResponse>>
     {
         Post("/api/auth/login");
         AllowAnonymous();
+        Description(d => d
+            .Produces(200)
+            .Produces(401)
+            .Produces(400));
     }
 
     public override async Task<ErrorOr<AuthResponse>> ExecuteAsync(LoginRequest loginRequest, CancellationToken ct)
-        => await AuthService.Login(loginRequest.Email, loginRequest.Password);
-
+        => await AuthService.Login(loginRequest);
 }

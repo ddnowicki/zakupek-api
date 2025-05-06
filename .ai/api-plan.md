@@ -12,7 +12,7 @@
 ### Users
 1. **User Registration**
    - **Method:** POST
-   - **URL:** `/api/users/register`
+   - **URL:** `/api/auth/register`
    - **Description:** Registers a new user with email, password, and household profile details.
    - **Request Body Example:**
      ```json
@@ -32,8 +32,7 @@
        "email": "user@example.com",
        "userName": "JohnDoe",
        "createdAt": "2025-04-10T12:00:00Z",
-       "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-       "refreshToken": "eyJhbGciOiJIAzI1NiIsInR5cCI6IkpXVCJ9..."
+       "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
      }
      ```
    - **Success Codes:** 201 Created
@@ -64,7 +63,7 @@
 1. **User Login**
    - **Method:** POST
    - **URL:** `/api/auth/login`
-   - **Description:** Authenticates the user and returns access tokens.
+   - **Description:** Authenticates the user and returns an access token.
    - **Request Body Example:**
      ```json
      {
@@ -78,7 +77,6 @@
        "userId": 1,
        "userName": "JohnDoe",
        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-       "refreshToken": "eyJhbGciOiJIAzI1NiIsInR5cCI6IkpXVCJ9...",
        "expiresAt": "2025-04-10T13:00:00Z"
      }
      ```
@@ -296,11 +294,11 @@
 ## 3. Authentication and Authorization
 - **Mechanism:** JSON Web Tokens (JWT) with bearer token authentication.
 - **Implementation Details:**
-  - Upon successful login via `/api/auth/login` or registration, access and refresh tokens are issued.
+  - Upon successful login via `/api/auth/login` or registration, an access token is issued.
   - Secure endpoints require the token in the `Authorization` header as `Bearer {token}`.
   - ASP.NET Core JWT middleware is used for authentication and authorization.
   - HTTPS is enforced to secure token transmission.
-  - Refresh token rotation is implemented for enhanced security.
+  - Token expiration is set to a reasonable period for security.
 
 ## 4. Validation and Business Logic
 - **Validation Rules:**

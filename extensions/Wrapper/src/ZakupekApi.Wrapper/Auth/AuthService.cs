@@ -5,16 +5,26 @@ using Microsoft.EntityFrameworkCore;
 using ZakupekApi.Db.Data;
 using ZakupekApi.Db.Models;
 using ZakupekApi.Wrapper.Abstraction.Auth;
+using ZakupekApi.Wrapper.Abstraction.Users;
 using ZakupekApi.Wrapper.Contract.Auth.Request;
 using ZakupekApi.Wrapper.Contract.Auth.Response;
 
 namespace ZakupekApi.Wrapper.Auth;
 
-public class AuthService(AppDbContext dbContext) : IAuthService
+public class AuthService : IAuthService
 {
+    private readonly AppDbContext _dbContext;
+    private readonly IUserService _userService;
+
+    public AuthService(AppDbContext dbContext, IUserService userService)
+    {
+        _dbContext = dbContext;
+        _userService = userService;
+    }
+
     public async Task<ErrorOr<AuthResponse>> Login(LoginRequest request)
     {
-        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
         if (user == null || !verifyPassword(request.Password, user.HashedPassword))
         {
@@ -28,7 +38,7 @@ public class AuthService(AppDbContext dbContext) : IAuthService
 
     public async Task<ErrorOr<AuthResponse>> Register(RegisterRequest request)
     {
-        var existingUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        var existingUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
         if (existingUser != null)
         {
@@ -46,7 +56,7 @@ public class AuthService(AppDbContext dbContext) : IAuthService
             CreatedAt = DateTime.UtcNow
         };
 
-        dbContext.Users.Add(newUser);
+        _dbContext.Users.Add(newUser);
 
         // Process ages after user is created
         if (request.Ages != null && request.Ages.Any())
@@ -74,11 +84,17 @@ public class AuthService(AppDbContext dbContext) : IAuthService
             }
         }
 
-        await dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
 
         var authResult = generateAuthenticationResult(newUser);
 
         return authResult;
+    }
+
+    public async Task<ErrorOr<UserProfileResponse>> GetProfile(int userId)
+    {
+        // Delegate to UserService
+        return await _userService.GetUserProfile(userId);
     }
 
     private bool verifyPassword(string password, string passwordHash)

@@ -12,7 +12,7 @@ public record ProductRequest(
 
 public record CreateShoppingListRequest(
     string? Title,
-    string? StoreName,
+    IEnumerable<ProductRequest>? Products,
     DateTime? PlannedShoppingDate,
-    IEnumerable<ProductRequest>? Products
+    string? StoreName
 );

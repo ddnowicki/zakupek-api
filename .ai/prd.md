@@ -75,7 +75,8 @@ Kryteria akceptacji:
 ### US-003
 
 Tytuł: Generowanie listy zakupów z wykorzystaniem AI
-Opis: Jako zalogowany użytkownik chcę otrzymać propozycję listy zakupów na podstawie historii oraz danych o domownikach i preferencjach, aby zaoszczędzić czas na planowaniu zakupów.
+Opis: Jako zalogowany użytkownik chcę otrzymać propozycję listy zakupów na podstawie historii oraz danych o domownikach i preferencjach, aby zaoszczędzić czas na planowaniu zakupów. Chcę mieć możliwość zaakceptowania lub odrzucenia propozycji.
+Chcę również mieć możliwość na poczatku (przed wygenerowaniem) przypisania listy do konkretnego sklepu oraz określenia daty zakupów.
 Kryteria akceptacji:
 
 - System AI przedstawia listę produktów z uwzględnieniem sezonowości

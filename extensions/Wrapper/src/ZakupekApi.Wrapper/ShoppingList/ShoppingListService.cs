@@ -1,15 +1,24 @@
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 using ZakupekApi.Db.Data;
 using ZakupekApi.Db.Models;
 using ZakupekApi.Wrapper.Abstraction.ShoppingList;
+using ZakupekApi.Wrapper.Contract.ShoppingLists.OpenRouter;
 using ZakupekApi.Wrapper.Contract.ShoppingLists.Request;
 using ZakupekApi.Wrapper.Contract.ShoppingLists.Response;
 
 namespace ZakupekApi.Wrapper.ShoppingList;
 
-public class ShoppingListService(AppDbContext dbContext) : IShoppingListService
+public class ShoppingListService(AppDbContext dbContext, HttpClient httpClient, IOptions<OpenRouterSettings> options) : IShoppingListService
 {
+    private readonly string apiKey = options.Value.ApiKey;
+    private readonly string baseUrl = options.Value.BaseUrl;
+    private readonly string model = options.Value.Model;
+
     public async Task<ErrorOr<ShoppingListsResponse>> GetShoppingListsAsync(
         int userId, int page = 1, int pageSize = 10, string sort = "newest")
     {
@@ -18,7 +27,7 @@ public class ShoppingListService(AppDbContext dbContext) : IShoppingListService
             .Include(sl => sl.Store)
             .Where(sl => sl.UserId == userId);
 
-        query = ApplySorting(query, sort);
+        query = applySorting(query, sort);
 
         var lists = await query
             .Skip((page - 1) * pageSize)
@@ -46,7 +55,7 @@ public class ShoppingListService(AppDbContext dbContext) : IShoppingListService
             )
         );
 
-        static IQueryable<Db.Models.ShoppingList> ApplySorting(IQueryable<Db.Models.ShoppingList> query, string sort) =>
+        static IQueryable<Db.Models.ShoppingList> applySorting(IQueryable<Db.Models.ShoppingList> query, string sort) =>
             sort switch
             {
                 "oldest" => query.OrderBy(sl => sl.CreatedAt),
@@ -226,5 +235,194 @@ public class ShoppingListService(AppDbContext dbContext) : IShoppingListService
         await dbContext.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task<ErrorOr<ShoppingListDetailResponse>> GenerateShoppingListAsync(
+        int userId, GenerateShoppingListRequest request)
+    {
+        const int AI_GENERATED_STATUS_ID = 1;
+
+        try
+        {
+            var user = await dbContext.Users
+                .Include(u => u.Ages)
+                .Include(u => u.DietaryPreferences)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                return Error.NotFound("User not found");
+            }
+            
+            var recentLists = await dbContext.ShoppingLists
+                .Include(sl => sl.Products)
+                .Where(sl => sl.UserId == userId)
+                .OrderByDescending(sl => sl.CreatedAt)
+                .Take(5)
+                .ToListAsync();
+
+            var prompt = new StringBuilder();
+            
+            prompt.AppendLine("You are an AI assistant that helps create shopping lists based on user preferences and shopping history.");
+            prompt.AppendLine("Generate a shopping list with common grocery items appropriate for the provided user profile and history.");
+            prompt.AppendLine("For each product, suggest a reasonable quantity based on household size and dietary preferences.");
+            prompt.AppendLine("Format the response as a JSON array with products in the format: [{\"name\": \"Product name\", \"quantity\": number}]");
+            prompt.AppendLine("Only return the JSON array, nothing else.");
+            prompt.AppendLine("Product names should be in Polish.");
+            
+            prompt.AppendLine("\nUser profile:");
+            prompt.AppendLine($"- Household size: {user.HouseholdSize ?? 1}");
+            
+            if (user.Ages.Any())
+            {
+                prompt.AppendLine($"- Ages: {string.Join(", ", user.Ages.Select(a => a.Age))}");
+            }
+            
+            if (user.DietaryPreferences.Any())
+            {
+                prompt.AppendLine($"- Dietary preferences: {string.Join(", ", user.DietaryPreferences.Select(dp => dp.Preference))}");
+            }
+            
+            if (!string.IsNullOrWhiteSpace(request.Title))
+            {
+                prompt.AppendLine($"\nShopping list title: {request.Title}");
+            }
+            
+            if (request.PlannedShoppingDate.HasValue)
+            {
+                prompt.AppendLine($"Planned shopping date: {request.PlannedShoppingDate.Value:yyyy-MM-dd}");
+            }
+            
+            if (!string.IsNullOrWhiteSpace(request.StoreName))
+            {
+                prompt.AppendLine($"Store: {request.StoreName}");
+            }
+            
+            if (recentLists.Any())
+            {
+                prompt.AppendLine("\nRecent shopping history:");
+                foreach (var list in recentLists)
+                {
+                    prompt.AppendLine($"- {list.Title ?? "Untitled list"} ({list.PlannedShoppingDate:yyyy-MM-dd}):");
+                    foreach (var product in list.Products)
+                    {
+                        prompt.AppendLine($"  * {product.Name}: {product.Quantity}");
+                    }
+                }
+            }
+
+            var messages = new[]
+            {
+                new ChatMessage { Role = "system", Content = "You are a helpful shopping list assistant." },
+                new ChatMessage { Role = "user", Content = prompt.ToString() }
+            };
+            
+            var openRouterRequest = new OpenRouterRequest
+            {
+                Model = model,
+                Messages = messages
+            };
+            
+            string chatCompletionsEndpoint = baseUrl.EndsWith("/") 
+                ? "chat/completions" 
+                : "/chat/completions";
+                
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}{chatCompletionsEndpoint}");
+            httpRequest.Headers.Authorization = new("Bearer", apiKey);
+            httpRequest.Content = new StringContent(
+                JsonSerializer.Serialize(openRouterRequest),
+                Encoding.UTF8,
+                "application/json");
+            
+            var httpResponse = await httpClient.SendAsync(httpRequest);
+            
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                var errorContent = await httpResponse.Content.ReadAsStringAsync();
+                return Error.Failure("AIServiceError", $"Failed to generate shopping list: {errorContent}");
+            }
+            
+            var openRouterResponse = await httpResponse.Content.ReadFromJsonAsync<OpenRouterResponse>();
+            if (openRouterResponse == null)
+            {
+                return Error.Failure("AIServiceError", "Failed to parse AI response");
+            }
+            
+            string aiResponseContent = openRouterResponse.Choices[0].Message.Content;
+            
+            string jsonContent = extractJsonArray(aiResponseContent);
+            var productSuggestions = JsonSerializer.Deserialize<List<ProductSuggestion>>(jsonContent);
+            
+            if (productSuggestions == null || !productSuggestions.Any())
+            {
+                return Error.Failure("AIServiceError", "AI generated an empty shopping list");
+            }
+            
+            Store? store = null;
+            if (!string.IsNullOrWhiteSpace(request.StoreName))
+            {
+                store = await dbContext.Stores
+                    .FirstOrDefaultAsync(s => s.UserId == userId && s.Name.ToLower() == request.StoreName.ToLower());
+
+                if (store == null)
+                {
+                    store = new()
+                    {
+                        UserId = userId, 
+                        Name = request.StoreName, 
+                        CreatedAt = DateTime.UtcNow, 
+                        UpdatedAt = DateTime.UtcNow
+                    };
+                    dbContext.Stores.Add(store);
+                    await dbContext.SaveChangesAsync();
+                }
+            }
+            
+            var shoppingList = new Db.Models.ShoppingList
+            {
+                UserId = userId,
+                Title = request.Title ?? "AI Generated Shopping List",
+                SourceId = AI_GENERATED_STATUS_ID,
+                StoreId = store?.Id,
+                PlannedShoppingDate = request.PlannedShoppingDate,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            
+            dbContext.ShoppingLists.Add(shoppingList);
+            await dbContext.SaveChangesAsync();
+            
+            var products = productSuggestions.Select(p => new Product
+            {
+                ShoppingListId = shoppingList.Id,
+                Name = p.Name,
+                Quantity = p.Quantity,
+                StatusId = AI_GENERATED_STATUS_ID,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            }).ToList();
+            
+            dbContext.Products.AddRange(products);
+            await dbContext.SaveChangesAsync();
+            
+            return await GetShoppingListByIdAsync(shoppingList.Id, userId);
+        }
+        catch (Exception ex)
+        {
+            return Error.Failure("AIServiceError", $"Error generating shopping list: {ex.Message}");
+        }
+    }
+    
+    private string extractJsonArray(string content)
+    {
+        var startIndex = content.IndexOf('[');
+        var endIndex = content.LastIndexOf(']');
+        
+        if (startIndex >= 0 && endIndex > startIndex)
+        {
+            return content.Substring(startIndex, endIndex - startIndex + 1);
+        }
+        
+        return "[]";
     }
 }

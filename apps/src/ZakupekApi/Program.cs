@@ -4,11 +4,14 @@ using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using Microsoft.EntityFrameworkCore;
+using Polly;
 using ZakupekApi;
 using ZakupekApi.Db.Data;
 using ZakupekApi.Wrapper.Abstraction.Auth;
 using ZakupekApi.Wrapper.Auth;
 using ZakupekApi.Wrapper.Contract.Auth.Validation;
+using ZakupekApi.Wrapper.Contract.ShoppingLists.OpenRouter;
+using ZakupekApi.Wrapper.ShoppingList;
 
 var bld = WebApplication.CreateBuilder();
 
@@ -28,6 +31,14 @@ bld.Services.AddDbContext<AppDbContext>(options =>
                 errorNumbersToAdd: null)
             .CommandTimeout(30)
     ));
+
+bld.Services.Configure<OpenRouterSettings>(
+    bld.Configuration.GetSection("OpenRouter"));
+
+bld.Services.AddHttpClient<ShoppingListService>()
+    .AddTransientHttpErrorPolicy(p => 
+        p.WaitAndRetryAsync(3, retryAttempt => 
+            TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
 
 bld.Services
     .AddAuthenticationJwtBearer(s => s.SigningKey = secretKey)

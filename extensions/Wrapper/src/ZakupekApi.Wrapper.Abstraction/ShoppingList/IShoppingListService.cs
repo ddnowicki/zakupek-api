@@ -21,4 +21,6 @@ public interface IShoppingListService
     Task<ErrorOr<ShoppingListDetailResponse>> UpdateShoppingListAsync(int listId, int userId, UpdateShoppingListRequest request);
     
     Task<ErrorOr<bool>> DeleteShoppingListAsync(int listId, int userId);
+    
+    Task<ErrorOr<ShoppingListDetailResponse>> GenerateShoppingListAsync(int userId, GenerateShoppingListRequest request);
 }

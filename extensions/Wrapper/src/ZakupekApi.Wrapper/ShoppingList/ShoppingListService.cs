@@ -179,20 +179,18 @@ public class ShoppingListService(AppDbContext dbContext, HttpClient httpClient, 
         return response;
     }
 
-    public async Task<ErrorOr<ShoppingListDetailResponse>> UpdateShoppingListAsync(
-        int listId, int userId, UpdateShoppingListRequest request)
+    public async Task<ErrorOr<bool>> UpdateShoppingListAsync(int listId, int userId, UpdateShoppingListRequest request)
     {
+        const int MANUALLY_ADDED_STATUS_ID = 3;
         var shoppingList = await dbContext.ShoppingLists
+            .Include(sl => sl.Products)
             .FirstOrDefaultAsync(sl => sl.Id == listId && sl.UserId == userId);
-
         if (shoppingList == null)
         {
             return Error.NotFound("Shopping list not found");
         }
 
-        shoppingList.SourceId = shoppingList.SourceId == 1
-            ? 2
-            : shoppingList.SourceId;
+        shoppingList.SourceId = shoppingList.SourceId == 1 ? 2 : shoppingList.SourceId;
         shoppingList.Title = request.Title;
         shoppingList.PlannedShoppingDate = request.PlannedShoppingDate;
 
@@ -200,25 +198,52 @@ public class ShoppingListService(AppDbContext dbContext, HttpClient httpClient, 
         {
             var store = await dbContext.Stores
                 .FirstOrDefaultAsync(s => s.UserId == userId && s.Name.ToLower() == request.StoreName.ToLower());
-
             if (store == null)
             {
-                store = new()
-                {
-                    UserId = userId, Name = request.StoreName, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow
-                };
+                store = new() { UserId = userId, Name = request.StoreName, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
                 dbContext.Stores.Add(store);
                 await dbContext.SaveChangesAsync();
             }
-
             shoppingList.StoreId = store.Id;
         }
 
+        var existing = shoppingList.Products.ToList();
+        var incoming = request.Products?.ToList() ?? new List<UpdateProductRequest>();
+        
+        var toDelete = existing.Where(ep => incoming.All(rp => rp.Id != ep.Id)).ToList();
+        if (toDelete.Count != 0)
+        {
+            dbContext.Products.RemoveRange(toDelete);
+        }
+
+        foreach (var rp in incoming)
+        {
+            if (rp.Id.HasValue)
+            {
+                var prod = existing.Single(ep => ep.Id == rp.Id.Value);
+                prod.Name = rp.Name;
+                prod.StatusId = prod.StatusId == 1 ? 2 : prod.StatusId;
+                prod.Quantity = rp.Quantity;
+                prod.UpdatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                var newProd = new Product
+                {
+                    ShoppingListId = shoppingList.Id,
+                    Name = rp.Name,
+                    Quantity = rp.Quantity,
+                    StatusId = MANUALLY_ADDED_STATUS_ID,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                dbContext.Products.Add(newProd);
+            }
+        }
+
         shoppingList.UpdatedAt = DateTime.UtcNow;
-
         await dbContext.SaveChangesAsync();
-
-        return await GetShoppingListByIdAsync(listId, userId);
+        return true;
     }
 
     public async Task<ErrorOr<bool>> DeleteShoppingListAsync(int listId, int userId)

@@ -7,22 +7,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<User> Users { get; set; }
     public DbSet<ShoppingList> ShoppingLists { get; set; }
-    public DbSet<ProductStatus> ProductStatuses { get; set; }
+    public DbSet<Status> ProductStatuses { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<UserDietaryPreference> UserDietaryPreferences { get; set; }
     public DbSet<UserAge> UserAges { get; set; }
-    public DbSet<Section> Sections { get; set; }
+    public DbSet<Store> Stores { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         // Seed ProductStatuses
-        modelBuilder.Entity<ProductStatus>().HasData(
-            new ProductStatus { Id = 1, Name = "AI generated" },
-            new ProductStatus { Id = 2, Name = "Partially by AI" },
-            new ProductStatus { Id = 3, Name = "Manual" },
-            new ProductStatus { Id = 4, Name = "Deleted" }
+        modelBuilder.Entity<Status>().HasData(
+            new Status { Id = 1, Name = "AI generated" },
+            new Status { Id = 2, Name = "Partially by AI" },
+            new Status { Id = 3, Name = "Manual" },
+            new Status { Id = 4, Name = "Deleted" }
         );
 
         // Configure relationships
@@ -44,12 +44,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(p => p.StatusId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Product>()
-            .HasOne(p => p.Section)
-            .WithMany(s => s.Products)
-            .HasForeignKey(p => p.SectionId)
-            .OnDelete(DeleteBehavior.SetNull);
-
         modelBuilder.Entity<UserDietaryPreference>()
             .HasOne(udp => udp.User)
             .WithMany(u => u.DietaryPreferences)
@@ -62,11 +56,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(ua => ua.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Section>()
+        modelBuilder.Entity<Store>()
             .HasOne(s => s.User)
-            .WithMany(u => u.Sections)
+            .WithMany(u => u.Stores)
             .HasForeignKey(s => s.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ShoppingList>()
+            .HasOne(sl => sl.Store)
+            .WithMany(s => s.ShoppingLists)
+            .HasForeignKey(sl => sl.StoreId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         // Configure indexes according to the plan
         modelBuilder.Entity<ShoppingList>()
@@ -75,19 +75,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Product>()
             .HasIndex(p => p.ShoppingListId);
 
-        modelBuilder.Entity<Product>()
-            .HasIndex(p => p.SectionId);
-
-        modelBuilder.Entity<Product>()
-            .HasIndex(p => new { p.ShoppingListId, p.SectionId, p.OrderInSection });
-
         modelBuilder.Entity<UserDietaryPreference>()
             .HasIndex(udp => udp.UserId);
 
         modelBuilder.Entity<UserAge>()
             .HasIndex(ua => ua.UserId);
 
-        modelBuilder.Entity<Section>()
+        modelBuilder.Entity<Store>()
             .HasIndex(s => s.UserId);
     }
 }

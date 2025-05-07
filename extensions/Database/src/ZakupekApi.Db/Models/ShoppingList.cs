@@ -1,22 +1,19 @@
 namespace ZakupekApi.Db.Models;
 
-public enum ShoppingListSource
-{
-    Manual,
-    AiGenerated,
-    PartiallyAiGenerated
-}
-
 public class ShoppingList
 {
     public int Id { get; set; }
     public int UserId { get; set; }
     public string? Title { get; set; }
-    public ShoppingListSource Source { get; set; } = ShoppingListSource.Manual;
+    public int SourceId { get; set; }
+    public int? StoreId { get; set; }
+    public DateTime? PlannedShoppingDate { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
     // Navigation properties
     public User User { get; set; } = null!;
+    public Status Source { get; set; } = null!;
+    public Store? Store { get; set; }
     public ICollection<Product> Products { get; set; } = new List<Product>();
 }

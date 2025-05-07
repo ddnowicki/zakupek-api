@@ -13,5 +13,5 @@ public class User
     public ICollection<ShoppingList> ShoppingLists { get; set; } = new List<ShoppingList>();
     public ICollection<UserDietaryPreference> DietaryPreferences { get; set; } = new List<UserDietaryPreference>();
     public ICollection<UserAge> Ages { get; set; } = new List<UserAge>();
-    public ICollection<Section> Sections { get; set; } = new List<Section>();
+    public ICollection<Store> Stores { get; set; } = new List<Store>();
 }

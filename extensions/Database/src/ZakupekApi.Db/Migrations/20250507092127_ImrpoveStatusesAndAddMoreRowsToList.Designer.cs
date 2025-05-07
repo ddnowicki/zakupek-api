@@ -11,8 +11,8 @@ using ZakupekApi.Db.Data;
 namespace ZakupekApi.Db.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250506105240_AddNewTables")]
-    partial class AddNewTables
+    [Migration("20250507092127_ImrpoveStatusesAndAddMoreRowsToList")]
+    partial class ImrpoveStatusesAndAddMoreRowsToList
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,13 +35,7 @@ namespace ZakupekApi.Db.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("OrderInSection")
-                        .HasColumnType("int");
-
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SectionId")
                         .HasColumnType("int");
 
                     b.Property<int>("ShoppingListId")
@@ -55,18 +49,52 @@ namespace ZakupekApi.Db.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SectionId");
-
                     b.HasIndex("ShoppingListId");
 
                     b.HasIndex("StatusId");
 
-                    b.HasIndex("ShoppingListId", "SectionId", "OrderInSection");
-
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("ZakupekApi.Db.Models.ProductStatus", b =>
+            modelBuilder.Entity("ZakupekApi.Db.Models.ShoppingList", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("PlannedShoppingDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("SourceId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("StoreId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SourceId");
+
+                    b.HasIndex("StoreId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ShoppingLists");
+                });
+
+            modelBuilder.Entity("ZakupekApi.Db.Models.Status", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -103,7 +131,7 @@ namespace ZakupekApi.Db.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ZakupekApi.Db.Models.Section", b =>
+            modelBuilder.Entity("ZakupekApi.Db.Models.Store", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -116,9 +144,6 @@ namespace ZakupekApi.Db.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -129,35 +154,7 @@ namespace ZakupekApi.Db.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Sections");
-                });
-
-            modelBuilder.Entity("ZakupekApi.Db.Models.ShoppingList", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("Source")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ShoppingLists");
+                    b.ToTable("Stores");
                 });
 
             modelBuilder.Entity("ZakupekApi.Db.Models.User", b =>
@@ -236,45 +233,53 @@ namespace ZakupekApi.Db.Migrations
 
             modelBuilder.Entity("ZakupekApi.Db.Models.Product", b =>
                 {
-                    b.HasOne("ZakupekApi.Db.Models.Section", "Section")
-                        .WithMany("Products")
-                        .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("ZakupekApi.Db.Models.ShoppingList", "ShoppingList")
                         .WithMany("Products")
                         .HasForeignKey("ShoppingListId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ZakupekApi.Db.Models.ProductStatus", "Status")
+                    b.HasOne("ZakupekApi.Db.Models.Status", "Status")
                         .WithMany("Products")
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Section");
 
                     b.Navigation("ShoppingList");
 
                     b.Navigation("Status");
                 });
 
-            modelBuilder.Entity("ZakupekApi.Db.Models.Section", b =>
+            modelBuilder.Entity("ZakupekApi.Db.Models.ShoppingList", b =>
                 {
+                    b.HasOne("ZakupekApi.Db.Models.Status", "Source")
+                        .WithMany()
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ZakupekApi.Db.Models.Store", "Store")
+                        .WithMany("ShoppingLists")
+                        .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("ZakupekApi.Db.Models.User", "User")
-                        .WithMany("Sections")
+                        .WithMany("ShoppingLists")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Source");
+
+                    b.Navigation("Store");
+
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ZakupekApi.Db.Models.ShoppingList", b =>
+            modelBuilder.Entity("ZakupekApi.Db.Models.Store", b =>
                 {
                     b.HasOne("ZakupekApi.Db.Models.User", "User")
-                        .WithMany("ShoppingLists")
+                        .WithMany("Stores")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -304,19 +309,19 @@ namespace ZakupekApi.Db.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ZakupekApi.Db.Models.ProductStatus", b =>
-                {
-                    b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("ZakupekApi.Db.Models.Section", b =>
-                {
-                    b.Navigation("Products");
-                });
-
             modelBuilder.Entity("ZakupekApi.Db.Models.ShoppingList", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("ZakupekApi.Db.Models.Status", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("ZakupekApi.Db.Models.Store", b =>
+                {
+                    b.Navigation("ShoppingLists");
                 });
 
             modelBuilder.Entity("ZakupekApi.Db.Models.User", b =>
@@ -325,9 +330,9 @@ namespace ZakupekApi.Db.Migrations
 
                     b.Navigation("DietaryPreferences");
 
-                    b.Navigation("Sections");
-
                     b.Navigation("ShoppingLists");
+
+                    b.Navigation("Stores");
                 });
 #pragma warning restore 612, 618
         }

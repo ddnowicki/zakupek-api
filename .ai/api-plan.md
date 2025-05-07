@@ -4,7 +4,8 @@
 - **Users** – Represents registered users. (Based on the Users table)
 - **ShoppingLists** – Represents shopping list entities created by users. (Based on the ShoppingLists table)
 - **Products** – Represents individual products attached to shopping lists. (Based on the Products table)
-- **ProductStatuses** – Represents status codes for products. (Based on the ProductStatuses table)
+- **Statuses** – Represents status codes for shopping lists and products. (Based on the Statuses table)
+- **Stores** – Represents stores associated with shopping lists. (Based on the Stores table)
 - **Authentication** – Endpoints for user login and token management.
 
 ## 2. Endpoints
@@ -40,7 +41,7 @@
 
 2. **Get User Profile**
    - **Method:** GET
-   - **URL:** `/api/users/me`
+   - **URL:** `/api/users/profile`
    - **Description:** Retrieves authenticated user's profile details.
    - **Headers:** `Authorization: Bearer {token}`
    - **Response Example:**
@@ -98,15 +99,19 @@
            "id": 1, 
            "title": "Weekly Groceries", 
            "productsCount": 12, 
+           "plannedShoppingDate": "2025-04-15T09:00:00Z",
            "createdAt": "2025-04-10T12:00:00Z",
-           "source": "manual"
+           "source": "manual",
+           "storeName": "Lidl"
          },
          {
            "id": 2, 
            "title": "Weekend Party", 
            "productsCount": 5, 
+           "plannedShoppingDate": null,
            "createdAt": "2025-04-11T09:30:00Z",
-           "source": "ai_generated"
+           "source": "ai_generated",
+           "storeName": null
          }
        ],
        "pagination": {
@@ -132,14 +137,17 @@
        "title": "Weekly Groceries",
        "createdAt": "2025-04-10T12:00:00Z",
        "updatedAt": "2025-04-10T14:30:00Z",
+       "plannedShoppingDate": "2025-04-15T09:00:00Z",
        "source": "manual",
+       "storeId": 1,
+       "storeName": "Lidl",
        "products": [
          {
            "id": 101,
            "name": "Milk",
            "quantity": 2,
            "statusId": 1,
-           "status": "AI generated",
+           "status": "To buy",
            "createdAt": "2025-04-10T12:05:00Z"
          },
          {
@@ -147,7 +155,7 @@
            "name": "Bread",
            "quantity": 1,
            "statusId": 2,
-           "status": "Manually added",
+           "status": "Bought",
            "createdAt": "2025-04-10T12:10:00Z"
          }
        ]
@@ -168,7 +176,9 @@
        "products": [
          { "name": "Apples", "quantity": 6 },
          { "name": "Bananas", "quantity": 3 }
-       ]
+       ],
+       "storeId": 1,
+       "plannedShoppingDate": "2025-04-20T10:00:00Z"
      }
      ```
    - **Response Example:**
@@ -178,20 +188,23 @@
        "title": "My Custom List",
        "createdAt": "2025-04-12T15:10:00Z",
        "source": "manual",
+       "storeId": 1,
+       "storeName": "Lidl",
+       "plannedShoppingDate": "2025-04-20T10:00:00Z",
        "products": [
          {
            "id": 201,
            "name": "Apples",
            "quantity": 6,
            "statusId": 2,
-           "status": "Manually added"
+           "status": "To buy"
          },
          {
            "id": 202,
            "name": "Bananas",
            "quantity": 3,
            "statusId": 2,
-           "status": "Manually added"
+           "status": "To buy"
          }
        ]
      }
@@ -202,12 +215,14 @@
 4. **Edit Shopping List**
    - **Method:** PUT
    - **URL:** `/api/shoppinglists/{id}`
-   - **Description:** Updates the title of an existing shopping list.
+   - **Description:** Updates an existing shopping list details.
    - **Headers:** `Authorization: Bearer {token}`
    - **Request Body Example:**
      ```json
      {
-       "title": "Updated List Title"
+       "title": "Updated List Title",
+       "storeId": 2,
+       "plannedShoppingDate": "2025-04-25T11:00:00Z"
      }
      ```
    - **Response Example:**
@@ -215,6 +230,9 @@
      {
        "id": 1,
        "title": "Updated List Title",
+       "storeId": 2,
+       "storeName": "Auchan",
+       "plannedShoppingDate": "2025-04-25T11:00:00Z",
        "updatedAt": "2025-04-12T16:30:00Z"
      }
      ```
@@ -229,8 +247,7 @@
    - **Success Codes:** 204 No Content
    - **Error Codes:** 401 Unauthorized, 404 Not Found
 
-### AI-Driven Shopping List Features
-1. **Generate Shopping List using AI**
+6. **Generate Shopping List using AI**
    - **Method:** POST
    - **URL:** `/api/shoppinglists/generate`
    - **Description:** Creates a new AI-generated shopping list based on user preferences and history.
@@ -239,9 +256,8 @@
      ```json
      {
        "title": "Weekly Essentials",
-       "dietaryPreferences": ["vegetarian"],
-       "peopleCount": 3,
-       "excludeRecentPurchases": true
+       "plannedShoppingDate": "2025-04-20T10:00:00Z",
+       "storeName": "Lidl"
      }
      ```
    - **Response Example:**
@@ -250,46 +266,38 @@
        "id": 4,
        "title": "Weekly Essentials",
        "createdAt": "2025-04-12T17:20:00Z",
+       "updatedAt": "2025-04-12T17:20:00Z",
+       "plannedShoppingDate": "2025-04-20T10:00:00Z",
        "source": "ai_generated",
+       "storeId": null,
+       "storeName": "lidl",
        "products": [
-         { "id": 301, "name": "Tofu", "quantity": 2, "statusId": 1, "status": "AI generated" },
-         { "id": 302, "name": "Fresh Vegetables", "quantity": 1, "statusId": 1, "status": "AI generated" },
-         { "id": 303, "name": "Plant-based Milk", "quantity": 2, "statusId": 1, "status": "AI generated" }
+         { 
+           "id": 301, 
+           "name": "Milk", 
+           "quantity": 2, 
+           "statusId": 1, 
+           "status": "To buy" 
+         },
+         { 
+           "id": 302, 
+           "name": "Bread", 
+           "quantity": 1, 
+           "statusId": 1, 
+           "status": "To buy" 
+         },
+         { 
+           "id": 303, 
+           "name": "Eggs", 
+           "quantity": 12, 
+           "statusId": 1, 
+           "status": "To buy" 
+         }
        ]
      }
      ```
    - **Success Codes:** 201 Created
    - **Error Codes:** 400 Bad Request, 401 Unauthorized, 500 Internal Server Error
-
-2. **Sort Shopping List using AI**
-   - **Method:** POST
-   - **URL:** `/api/shoppinglists/{id}/sort`
-   - **Description:** Reorders products in a shopping list using AI for optimal shopping experience.
-   - **Headers:** `Authorization: Bearer {token}`
-   - **Request Body Example:**
-     ```json
-     {
-       "sortStrategy": "store_layout", 
-       "supermarketName": "Lidl" 
-     }
-     ```
-   - **Response Example:**
-     ```json
-     {
-       "id": 1,
-       "title": "Weekly Groceries",
-       "products": [
-         { "id": 103, "name": "Bread", "section": "Bakery" },
-         { "id": 105, "name": "Cheese", "section": "Dairy" },
-         { "id": 101, "name": "Milk", "section": "Dairy" },
-         { "id": 102, "name": "Apples", "section": "Produce" }
-       ],
-       "sortedBy": "store_layout",
-       "supermarket": "Lidl"
-     }
-     ```
-   - **Success Codes:** 200 OK
-   - **Error Codes:** 400 Bad Request, 401 Unauthorized, 404 Not Found
 
 ## 3. Authentication and Authorization
 - **Mechanism:** JSON Web Tokens (JWT) with bearer token authentication.
@@ -299,6 +307,7 @@
   - ASP.NET Core JWT middleware is used for authentication and authorization.
   - HTTPS is enforced to secure token transmission.
   - Token expiration is set to a reasonable period for security.
+  - User identity is extracted from the token for authorization checks against resources.
 
 ## 4. Validation and Business Logic
 - **Validation Rules:**
@@ -309,15 +318,18 @@
   2. **ShoppingLists:**
      - Title is optional but, if provided, should be a non-empty string.
      - Every shopping list must be associated with an existing user.
+     - Store reference must be valid if provided.
+     - PlannedShoppingDate must be a valid date format if provided.
   3. **Products:**
      - Product name must be provided and non-empty.
      - Quantity must be an integer greater than zero.
-     - `statusId` must reference an existing status in the ProductStatuses table.
+     - `statusId` must reference an existing status in the Statuses table.
 - **Business Logic:**
   - **User Registration and Login:** Handled by dedicated endpoints ensuring that credentials are validated and securely stored.
-  - **AI-Driven List Generation:** Invokes an external AI service (via Openrouter.ai) to generate product suggestions based on user profile and history. The logic ensures seasonal and preference-based filtering.
   - **Cascade Deletion:** Deleting a shopping list automatically removes associated products, adhering to the database cascade rules.
   - **Pagination, Filtering, and Sorting:** Built into list endpoints to efficiently manage large data sets.
   - **Data Consistency:** Enforcement of database constraints (e.g., foreign key relationships) drives API validations.
+  - **User-specific Data:** All shopping lists and related resources are scoped to the authenticated user.
+  - **Error Handling:** Consistent error responses using ErrorOr pattern for predictable client-side handling.
 
 This API plan is designed to be robust, secure, and aligned with the provided database schema, product requirements, and technology stack.

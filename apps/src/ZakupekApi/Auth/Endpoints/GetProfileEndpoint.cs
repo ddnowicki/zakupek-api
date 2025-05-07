@@ -13,10 +13,6 @@ public class GetProfileEndpoint : EndpointWithoutRequest<ErrorOr<UserProfileResp
     public override void Configure()
     {
         Get("/api/users/profile");
-        Description(d => d
-            .Produces(200)
-            .Produces(401)
-            .Produces(404));
     }
 
     public override async Task<ErrorOr<UserProfileResponse>> ExecuteAsync(CancellationToken ct)

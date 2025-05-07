@@ -14,10 +14,6 @@ public class RegisterEndpoint : Endpoint<RegisterRequest, ErrorOr<AuthResponse>>
     {
         Post("/api/auth/register");
         AllowAnonymous();
-        Description(d => d
-            .Produces(201)
-            .Produces(400)
-            .Produces(409));
     }
 
     public override async Task<ErrorOr<AuthResponse>> ExecuteAsync(RegisterRequest registerRequest, CancellationToken ct)

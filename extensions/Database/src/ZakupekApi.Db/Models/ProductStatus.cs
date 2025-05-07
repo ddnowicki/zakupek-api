@@ -1,6 +1,6 @@
 namespace ZakupekApi.Db.Models;
 
-public class ProductStatus
+public class Status
 {
     public int Id { get; set; }
     public string Name { get; set; } = null!;

@@ -1,17 +1,10 @@
 Frontend:
 
-- Angular 19
-    - Kompleksowy framework z solidnym ekosystemem narzędzi
-    - Wsparcie dla komponentów i reaktywnego UI
-    - Silne typowanie z TypeScript
-- TypeScript 5
-    - Statyczne typowanie redukujące błędy w kodzie
-    - Lepsza dokumentacja i wsparcie IDE
-    - Zwiększona produktywność dzięki autocompletacji i wykrywaniu błędów
-- Tailwind 4
-    - Utility-first CSS dla szybkiego prototypowania
-    - Spójny design system z minimalnymi nakładami
-    - Łatwa responsywność bez pisania własnego CSS
+- Astro 5 pozwala na tworzenie szybkich, wydajnych stron i aplikacji z minimalną ilością JavaScript
+- React 19 zapewnia interaktywność tam, gdzie jest potrzebna
+- TypeScript 5 dla statycznego typowania kodu i lepszego wsparcia IDE
+- Tailwind 4 pozwala na wygodne stylowanie aplikacji
+- Shadcn/ui zapewnia bibliotekę dostępnych komponentów React, na których oprzemy UI
 
 Backend:
 
@@ -27,6 +20,14 @@ Backend:
     - ORM dla łatwego mapowania obiektowo-relacyjnego
     - Wsparcie dla Code-First i migracji bazy danych
     - Optymalizacja wydajności zapytań do bazy danych
+- FastEndpoints
+    - Lekka alternatywa dla ASP.NET Core endpoints redukująca ilość kodu szablonowego
+- Scrutor
+    - Skanowanie i dekorowanie assembly dla Microsoft DI w celu uproszczenia rejestracji usług
+- FluentValidation
+    - Biblioteka walidacji w stylu fluent dla wyrażeniowej i łatwej w utrzymaniu walidacji modeli
+- ErrorOr
+    - Ujednolicone zarządzanie błędami i typ wynikowy dla funkcjonalnego zarządzania błędami
 
 Komunikacja z modelami AI:
 
@@ -35,7 +36,7 @@ Komunikacja z modelami AI:
     - Elastyczne API upraszczające integrację
     - Optymalizacja kosztów przez wybór odpowiednich modeli
 
-CL/CD i Hosting:
+CI/CD i Hosting:
 
 - Github actions
     - Automatyzacja procesów CI/CD

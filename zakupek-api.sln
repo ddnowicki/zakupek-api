@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 		.ai\db-plan.md = .ai\db-plan.md
 		.ai\prd.md = .ai\prd.md
 		.ai\tech-stack.md = .ai\tech-stack.md
+		.github\copilot-instructions.md = .github\copilot-instructions.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "extensions", "extensions", "{A0C7EBFD-74A6-428A-8849-C1D17BC2F9E2}"

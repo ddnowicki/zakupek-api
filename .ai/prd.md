@@ -2,7 +2,7 @@
 
 ## 1. Przegląd produktu
 
-Aplikacja webowa, której głównym celem jest ułatwienie tworzenia list zakupów za pomocą systemu AI oraz historii poprzednich zakupów. Pozwala ona na dostosowanie proponowanych list zgodnie z danymi demograficznymi użytkownika oraz jego preferencjami żywieniowymi. Aplikacja ma zapewnić zarówno wygodny sposób ręcznego edytowania list, jak i automatyczne sortowanie produktów w kategoriach.
+Aplikacja webowa, której głównym celem jest ułatwienie tworzenia list zakupów za pomocą systemu AI oraz historii poprzednich zakupów. Pozwala ona na dostosowanie proponowanych list zgodnie z danymi demograficznymi użytkownika oraz jego preferencjami żywieniowymi. Aplikacja ma zapewnić zarówno wygodny sposób ręcznego edytowania list.
 
 ## 2. Problem użytkownika
 
@@ -11,38 +11,37 @@ Użytkownicy często tracą czas na ręczne tworzenie list zakupów, a dodatkowo
 ## 3. Wymagania funkcjonalne
 
 1. Rejestracja i logowanie użytkowników w celu przechowywania spersonalizowanych list:
-    - Podawanie liczby i wieku domowników
-    - Podawanie preferencji żywieniowych
-    - Rejestracja poprzez podanie adresu e-mail, hasła oraz nazwy użytkownika
+  - Podawanie liczby i wieku domowników
+  - Podawanie preferencji żywieniowych
+  - Rejestracja poprzez podanie adresu e-mail, hasła oraz nazwy użytkownika
 2. Automatyczne generowanie list zakupów z wykorzystaniem AI:
-    - Analiza historii poprzednich zakupów
-    - Uwzględnianie sezonowości produktów
-    - Dopasowywanie ilości produktów do liczby domowników
+  - Analiza historii poprzednich zakupów
+  - Uwzględnianie sezonowości produktów
+  - Dopasowywanie ilości produktów do liczby domowników
 3. Ręczne tworzenie, edycja i usuwanie list zakupów:
-    - Dodawanie nowych pozycji i ich ilości
-    - Redagowanie wybranych elementów
-    - Usuwanie zbędnych pozycji
-    - Planowanie daty zakupów
-    - Przypisywanie listy do określonego sklepu
+  - Dodawanie nowych pozycji i ich ilości
+  - Redagowanie wybranych elementów
+  - Usuwanie zbędnych pozycji
+  - Planowanie daty zakupów
+  - Przypisywanie listy do określonego sklepu
 4. Zarządzanie statusem produktów na liście:
-    - Oznaczanie produktów jako "do kupienia" lub "kupione"
-    - Śledzenie zmian statusu produktów w czasie rzeczywistym
-5. Sortowanie list zakupów według podstawowych kategorii (np. napoje, pieczywo, nabiał).
-6. Przeglądanie poprzednich list zapisanych w historii konta:
-    - Sortowanie list według różnych kryteriów (najnowsze, najstarsze, alfabetycznie)
-    - Paginacja wyników dla lepszej nawigacji
-7. Podstawowa wyszukiwarka produktów w czasie tworzenia lub edycji listy.
-8. Brak rekomendacji związanych z konkretnymi markami w ramach MVP.
-9. Brak rozbudowanych filtrów i zaawansowanego systemu raportowania (przeznaczone na dalsze etapy).
+  - Oznaczanie produktów jako "do kupienia" lub "kupione"
+  - Śledzenie zmian statusu produktów w czasie rzeczywistym
+5. Przeglądanie poprzednich list zapisanych w historii konta:
+  - Sortowanie list według różnych kryteriów (najnowsze, najstarsze, alfabetycznie)
+  - Paginacja wyników dla lepszej nawigacji
+6. Podstawowa wyszukiwarka produktów w czasie tworzenia lub edycji listy.
+7. Brak rekomendacji związanych z konkretnymi markami w ramach MVP.
+8. Brak rozbudowanych filtrów i zaawansowanego systemu raportowania (przeznaczone na dalsze etapy).
 
 ## 4. Granice produktu
 
 1. Wyłączone z MVP:
-    - Współdzielenie list z innymi użytkownikami
-    - Walidacja paragonów
-    - Wersje mobilne (rozwiązanie ogranicza się do wersji webowej w MVP)
-    - Propozycje konkretnych marek produktów
-    - Zaawansowane raporty i analizy dostępne bezpośrednio dla użytkownika
+  - Współdzielenie list z innymi użytkownikami
+  - Walidacja paragonów
+  - Wersje mobilne (rozwiązanie ogranicza się do wersji webowej w MVP)
+  - Propozycje konkretnych marek produktów
+  - Zaawansowane raporty i analizy dostępne bezpośrednio dla użytkownika
 2. Analiza logów oraz raportów będzie dostępna tylko dla zespołu tworzącego aplikację.
 3. W MVP nie przewiduje się żadnych dodatkowych ograniczeń prawnych w zakresie przetwarzania danych poza standardowymi wymogami prawnymi.
 4. Uwierzytelnianie będzie realizowane poprzez tokeny JWT (JSON Web Tokens).

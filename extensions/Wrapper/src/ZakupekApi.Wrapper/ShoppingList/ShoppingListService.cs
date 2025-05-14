@@ -147,7 +147,6 @@ public class ShoppingListService(AppDbContext dbContext, HttpClient httpClient, 
 
         if (request.Products != null && request.Products.Any())
         {
-
             var products = request.Products.Select(p => new Product
             {
                 ShoppingListId = shoppingList.Id,
@@ -163,6 +162,10 @@ public class ShoppingListService(AppDbContext dbContext, HttpClient httpClient, 
 
             return await GetShoppingListByIdAsync(shoppingList.Id, userId);
         }
+
+        await dbContext.Entry(shoppingList)
+            .Reference(sl => sl.Source)
+            .LoadAsync();
 
         var response = new ShoppingListDetailResponse(
             shoppingList.Id,
@@ -221,10 +224,17 @@ public class ShoppingListService(AppDbContext dbContext, HttpClient httpClient, 
             if (rp.Id.HasValue)
             {
                 var prod = existing.Single(ep => ep.Id == rp.Id.Value);
+
+                if (prod.Name == rp.Name && prod.Quantity == rp.Quantity)
+                {
+                    continue;
+                }
+
                 prod.Name = rp.Name;
-                prod.StatusId = prod.StatusId == 1 ? 2 : prod.StatusId;
                 prod.Quantity = rp.Quantity;
                 prod.UpdatedAt = DateTime.UtcNow;
+
+                prod.StatusId = prod.StatusId == 1 ? 2 : prod.StatusId;
             }
             else
             {

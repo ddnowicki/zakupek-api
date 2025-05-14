@@ -40,6 +40,19 @@ bld.Services.AddHttpClient<ShoppingListService>()
         p.WaitAndRetryAsync(3, retryAttempt => 
             TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
 
+bld.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        options.AddPolicy("MyCors", builder =>
+        {
+            builder.WithOrigins("http://localhost:3001")
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+        });
+    });
+});
+
 bld.Services
     .AddAuthenticationJwtBearer(s => s.SigningKey = secretKey)
     .Configure<JwtCreationOptions>(o => o.SigningKey = secretKey)
@@ -53,7 +66,9 @@ bld.Services
         .WithScopedLifetime());
 
 var app = bld.Build();
-app.UseAuthentication()
+
+app.UseCors("MyCors")
+    .UseAuthentication()
     .UseAuthorization()
     .UseFastEndpoints(
             c =>

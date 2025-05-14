@@ -1,9 +1,10 @@
+using FastEndpoints;
 using FluentValidation;
 using ZakupekApi.Wrapper.Contract.ShoppingLists.Request;
 
 namespace ZakupekApi.Wrapper.Contract.ShoppingLists.Validation;
 
-public class UpdateShoppingListValidator : AbstractValidator<UpdateShoppingListRequest>
+public class UpdateShoppingListValidator : Validator<UpdateShoppingListRequest>
 {
     public UpdateShoppingListValidator()
     {
@@ -16,7 +17,7 @@ public class UpdateShoppingListValidator : AbstractValidator<UpdateShoppingListR
     }
 }
 
-public class UpdateProductRequestValidator : AbstractValidator<UpdateProductRequest>
+public class UpdateProductRequestValidator : Validator<UpdateProductRequest>
 {
     public UpdateProductRequestValidator()
     {

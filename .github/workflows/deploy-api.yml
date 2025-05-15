@@ -12,23 +12,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Create appsettings.Production.json
+    - name: Create .env file
       working-directory: apps/src/ZakupekApi
       run: |
-        echo '{
-          "ConnectionStrings": {
-            "DefaultConnection": "${{ secrets.PROD_CONNECTION_STRING }}"
-          },
-          "JwtSettings": {
-            "SecretKey": "${{ secrets.PROD_JWT_SECRET }}",
-            "Issuer": "ZakupekApi",
-            "Audience": "ZakupekApiClients"
-          },
-          "OpenRouter": {
-            "BaseUrl": "https://openrouter.ai/api/v1/",
-            "ApiKey": "${{ secrets.PROD_OPENROUTER_API_KEY }}"
-          }
-        }' > appsettings.Production.json
+        echo "ConnectionStrings__DefaultConnection=${{ secrets.PROD_CONNECTION_STRING }}" >> .env
+        echo "JwtSettings__SecretKey=${{ secrets.PROD_JWT_SECRET }}" >> .env
+        echo "OpenRouter__ApiKey=${{ secrets.PROD_OPENROUTER_API_KEY }}" >> .env
 
     - name: Build Docker image
       run: docker build -t ${{ vars.API_CONTAINER_NAME }} .

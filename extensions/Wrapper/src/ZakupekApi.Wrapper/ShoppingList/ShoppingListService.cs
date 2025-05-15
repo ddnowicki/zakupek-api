@@ -13,7 +13,8 @@ using ZakupekApi.Wrapper.Contract.ShoppingLists.Response;
 
 namespace ZakupekApi.Wrapper.ShoppingList;
 
-public class ShoppingListService(AppDbContext dbContext, HttpClient httpClient, IOptions<OpenRouterSettings> options) : IShoppingListService
+public class ShoppingListService(AppDbContext dbContext, HttpClient httpClient, IOptions<OpenRouterSettings> options) 
+    : IShoppingListService
 {
     private readonly string apiKey = options.Value.ApiKey;
     private readonly string baseUrl = options.Value.BaseUrl;

@@ -11,20 +11,11 @@ using ZakupekApi.Wrapper.Contract.Auth.Response;
 
 namespace ZakupekApi.Wrapper.Auth;
 
-public class AuthService : IAuthService
+public class AuthService(AppDbContext dbContext) : IAuthService
 {
-    private readonly AppDbContext _dbContext;
-    private readonly IUserService _userService;
-
-    public AuthService(AppDbContext dbContext, IUserService userService)
-    {
-        _dbContext = dbContext;
-        _userService = userService;
-    }
-
     public async Task<ErrorOr<AuthResponse>> Login(LoginRequest request)
     {
-        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
         if (user == null || !verifyPassword(request.Password, user.HashedPassword))
         {
@@ -38,7 +29,7 @@ public class AuthService : IAuthService
 
     public async Task<ErrorOr<AuthResponse>> Register(RegisterRequest request)
     {
-        var existingUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        var existingUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
         if (existingUser != null)
         {
@@ -56,7 +47,7 @@ public class AuthService : IAuthService
             CreatedAt = DateTime.UtcNow
         };
 
-        _dbContext.Users.Add(newUser);
+        dbContext.Users.Add(newUser);
 
         // Process ages after user is created
         if (request.Ages != null && request.Ages.Any())
@@ -84,19 +75,13 @@ public class AuthService : IAuthService
             }
         }
 
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
 
         var authResult = generateAuthenticationResult(newUser);
 
         return authResult;
     }
-
-    public async Task<ErrorOr<UserProfileResponse>> GetProfile(int userId)
-    {
-        // Delegate to UserService
-        return await _userService.GetUserProfile(userId);
-    }
-
+    
     private bool verifyPassword(string password, string passwordHash)
     {
         return BCrypt.Net.BCrypt.Verify(password, passwordHash);

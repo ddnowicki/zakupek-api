@@ -2,14 +2,8 @@
 
 namespace ZakupekApi.Wrapper.Contract.ShoppingLists.Request;
 
-public class GetShoppingListsRequest
-{
-    [QueryParam] 
-    public int Page { get; set; } = 1;
-    
-    [QueryParam] 
-    public int PageSize { get; set; } = 10;
-    
-    [QueryParam] 
-    public string Sort { get; set; } = "newest";
-}
+public record GetShoppingListsRequest(
+    [property: QueryParam] int Page = 1,
+    [property: QueryParam] int PageSize = 10,
+    [property: QueryParam] string Sort = "newest"
+);

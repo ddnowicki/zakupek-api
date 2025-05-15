@@ -1,7 +1,6 @@
 namespace ZakupekApi.Wrapper.Contract.Auth.Request;
 
-public class LoginRequest
-{
-    public required string Email { get; set; }
-    public required string Password { get; set; }
-}
+public record LoginRequest(
+    string Email,
+    string Password
+);

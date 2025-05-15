@@ -8,5 +8,4 @@ public interface IAuthService
 {
     Task<ErrorOr<AuthResponse>> Login(LoginRequest request);
     Task<ErrorOr<AuthResponse>> Register(RegisterRequest request);
-    Task<ErrorOr<UserProfileResponse>> GetProfile(int userId);
 }

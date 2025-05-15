@@ -2,7 +2,7 @@ using FastEndpoints;
 using FluentValidation;
 using ZakupekApi.Wrapper.Contract.Auth.Request;
 
-namespace ZakupekApi.Wrapper.Contract.Auth.Validators;
+namespace ZakupekApi.Wrapper.Contract.Auth.Validation;
 
 public class UpdateUserProfileRequestValidator : Validator<UpdateUserProfileRequest>
 {

@@ -33,5 +33,6 @@ jobs:
         docker run --detach \
           --name ${{ vars.API_CONTAINER_NAME }} \
           --publish ${{ vars.API_PORT }}:8080 \
+          --env-file apps/src/ZakupekApi/.env \
           --restart always \
           ${{ vars.API_CONTAINER_NAME }}

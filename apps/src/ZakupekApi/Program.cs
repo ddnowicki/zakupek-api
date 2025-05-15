@@ -18,19 +18,22 @@ var bld = WebApplication.CreateBuilder();
 var jwtSettings = bld.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? throw new ArgumentNullException();
 
-var connectionString = bld.Configuration.GetConnectionString("DefaultConnection");
+// if (!bld.Environment.IsEnvironment("IntegrationTests"))
+// {
+    var connectionString = bld.Configuration.GetConnectionString("DefaultConnection");
 
-bld.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(
-        connectionString,
-        ServerVersion.AutoDetect(connectionString),
-        mySqlOptions => mySqlOptions
-            .EnableRetryOnFailure(
-                maxRetryCount: 3,
-                maxRetryDelay: TimeSpan.FromSeconds(5),
-                errorNumbersToAdd: null)
-            .CommandTimeout(30)
-    ));
+    bld.Services.AddDbContext<AppDbContext>(options =>
+        options.UseMySql(
+            connectionString,
+            ServerVersion.AutoDetect(connectionString),
+            mySqlOptions => mySqlOptions
+                .EnableRetryOnFailure(
+                    maxRetryCount: 3,
+                    maxRetryDelay: TimeSpan.FromSeconds(5),
+                    errorNumbersToAdd: null)
+                .CommandTimeout(30)
+        ));
+// }
 
 bld.Services.Configure<OpenRouterSettings>(
     bld.Configuration.GetSection("OpenRouter"));
@@ -91,3 +94,6 @@ app.UseCors("MyCors")
     .UseSwaggerGen();
 
 app.Run();
+
+// Making the Program class public for testing purposes
+public partial class Program { }

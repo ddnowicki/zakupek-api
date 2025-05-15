@@ -1,4 +1,4 @@
-name: Deploy .NET API
+name: Deploy Zakupek API
 
 on:
   push:
@@ -12,8 +12,26 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Create appsettings.Production.json
+      working-directory: apps/src/ZakupekApi
+      run: |
+        echo '{
+          "ConnectionStrings": {
+            "DefaultConnection": "${{ secrets.PROD_CONNECTION_STRING }}"
+          },
+          "JwtSettings": {
+            "SecretKey": "${{ secrets.PROD_JWT_SECRET }}",
+            "Issuer": "ZakupekApi",
+            "Audience": "ZakupekApiClients"
+          },
+          "OpenRouter": {
+            "BaseUrl": "https://openrouter.ai/api/v1/",
+            "ApiKey": "${{ secrets.PROD_OPENROUTER_API_KEY }}"
+          }
+        }' > appsettings.Production.json
+
     - name: Build Docker image
-      run: docker build -t ${{ vars.API_CONTAINER_NAME }} .
+      run: docker build -t ${{ vars.API_CONTAINER_NAME }} -f apps/src/ZakupekApi/Dockerfile .
 
     - name: Stop existing container
       run: docker container stop ${{ vars.API_CONTAINER_NAME }} || true

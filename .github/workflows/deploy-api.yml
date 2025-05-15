@@ -31,7 +31,7 @@ jobs:
         }' > appsettings.Production.json
 
     - name: Build Docker image
-      run: docker build -t ${{ vars.API_CONTAINER_NAME }} -f apps/src/ZakupekApi/Dockerfile .
+      run: docker build -t ${{ vars.API_CONTAINER_NAME }} .
 
     - name: Stop existing container
       run: docker container stop ${{ vars.API_CONTAINER_NAME }} || true

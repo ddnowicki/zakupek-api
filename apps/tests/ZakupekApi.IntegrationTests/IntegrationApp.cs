@@ -1,10 +1,12 @@
 using System.Net;
 using System.Net.Http.Headers;
+using FakeItEasy;
 using FastEndpoints;
 using FastEndpoints.Testing;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using ZakupekApi.Auth.Endpoints;
 using ZakupekApi.Db.Data;
 using ZakupekApi.Wrapper.Contract.Auth.Request;
@@ -16,6 +18,12 @@ namespace ZakupekApi.IntegrationTests;
 public class IntegrationApp : AppFixture<Program>
 {
     public HttpClient Customer { get; private set; } = null!;
+    public HttpMessageHandler FakeHandler { get; private set; } = null!;
+   
+    public IntegrationApp()
+    {
+        FakeHandler = A.Fake<HttpMessageHandler>();
+    }
 
     protected override async ValueTask SetupAsync()
     {
@@ -46,6 +54,11 @@ public class IntegrationApp : AppFixture<Program>
 
         services.AddDbContext<AppDbContext>(options =>
             options.UseInMemoryDatabase("TestDb"));
+        
+        var fakeHttpClient = new HttpClient(FakeHandler);
+        
+        services.RemoveAll<HttpClient>();
+        services.AddSingleton(fakeHttpClient);
     }
 
     protected override ValueTask TearDownAsync()

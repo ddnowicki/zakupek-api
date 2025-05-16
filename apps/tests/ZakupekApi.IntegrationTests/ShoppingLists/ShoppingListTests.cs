@@ -1,5 +1,6 @@
 using System.Net;
 using ErrorOr;
+using FakeItEasy;
 using FastEndpoints;
 using FastEndpoints.Testing;
 using Shouldly;
@@ -254,6 +255,15 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
             PlannedShoppingDate: DateTime.UtcNow.AddDays(3),
             StoreName: "Lidl"
         );
+        
+        A.CallTo(app.FakeHandler)
+            .WithReturnType<Task<HttpResponseMessage>>()
+            .Where(call => call.Method.Name == "SendAsync")
+            .ReturnsLazily(() => Task.FromResult(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent("FakeItEasy is fun")
+            }));
 
         // Act
         var response = await app.Customer.POSTAsync<GenerateShoppingListEndpoint, GenerateShoppingListRequest, ShoppingListDetailResponse>(request);

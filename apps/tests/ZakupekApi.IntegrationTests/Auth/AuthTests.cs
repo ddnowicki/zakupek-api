@@ -1,10 +1,8 @@
 using System.Net;
-using System.Net.Http.Json;
 using ErrorOr;
 using FastEndpoints;
 using FastEndpoints.Testing;
 using Shouldly;
-using Xunit;
 using ZakupekApi.Auth.Endpoints;
 using ZakupekApi.Wrapper.Contract.Auth.Request;
 using ZakupekApi.Wrapper.Contract.Auth.Response;
@@ -21,9 +19,9 @@ public class AuthTests(IntegrationApp app) : TestBase<IntegrationApp>
     {
         await app.ResetDatabaseAsync();
     }
-    
+
     [Fact, Priority(1)]
-    public async Task Register_With_Valid_Data_Creates_User()
+    public async Task AuthTests_WhenRegisteringWithValidData_ShouldCreateUser()
     {
         // Arrange
         var request = new RegisterRequest(
@@ -47,7 +45,7 @@ public class AuthTests(IntegrationApp app) : TestBase<IntegrationApp>
     }
 
     [Fact, Priority(2)]
-    public async Task Register_With_Invalid_Data_Returns_BadRequest()
+    public async Task AuthTests_WhenRegisteringWithInvalidData_ShouldReturnBadRequest()
     {
         // Arrange
         var request = new RegisterRequest(
@@ -65,10 +63,10 @@ public class AuthTests(IntegrationApp app) : TestBase<IntegrationApp>
     }
 
     [Fact, Priority(3)]
-    public async Task Login_With_Valid_Credentials_Returns_Token()
+    public async Task AuthTests_WhenLoginWithValidCredentials_ShouldReturnToken()
     {
         // Arrange - Ensure a user exists
-        await Register_With_Valid_Data_Creates_User();
+        await AuthTests_WhenRegisteringWithValidData_ShouldCreateUser();
         var request = new LoginRequest(TEST_EMAIL, TEST_PASSWORD);
 
         // Act
@@ -83,7 +81,7 @@ public class AuthTests(IntegrationApp app) : TestBase<IntegrationApp>
     }
 
     [Fact, Priority(4)]
-    public async Task Login_With_Invalid_Credentials_Returns_Unauthorized()
+    public async Task AuthTests_WhenLoginWithInvalidCredentials_ShouldReturnUnauthorized()
     {
         // Arrange
         var request = new LoginRequest("wrong@example.com", "WrongPassword123!");
@@ -96,7 +94,7 @@ public class AuthTests(IntegrationApp app) : TestBase<IntegrationApp>
     }
 
     [Fact, Priority(5)]
-    public async Task Get_Profile_Returns_Unauthorized_For_Guest()
+    public async Task AuthTests_WhenGuestAccessesProfile_ShouldReturnUnauthorized()
     {
         // Act
         var response = await app.Client.GETAsync<GetProfileEndpoint, EmptyRequest, ErrorOr<UserProfileResponse>>(new EmptyRequest());
@@ -106,14 +104,14 @@ public class AuthTests(IntegrationApp app) : TestBase<IntegrationApp>
     }
 
     [Fact, Priority(6)]
-    public async Task Get_Profile_Returns_Profile_For_Authenticated_User()
+    public async Task AuthTests_WhenAuthenticatedUserAccessesProfile_ShouldReturnProfile()
     {
         // Arrange
         await app.AuthenticateAsUser(TEST_EMAIL, TEST_PASSWORD);
-    
+
         // Act
         var response = await app.Customer.GETAsync<GetProfileEndpoint, EmptyRequest, UserProfileResponse>(new EmptyRequest());
-    
+
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var result = response.Result;
@@ -123,7 +121,7 @@ public class AuthTests(IntegrationApp app) : TestBase<IntegrationApp>
     }
 
     [Fact, Priority(7)]
-    public async Task Update_Profile_Returns_Unauthorized_For_Guest()
+    public async Task AuthTests_WhenGuestUpdatesProfile_ShouldReturnUnauthorized()
     {
         // Arrange
         const string UPDATED_USERNAME = "Updated User";
@@ -142,7 +140,7 @@ public class AuthTests(IntegrationApp app) : TestBase<IntegrationApp>
     }
 
     [Fact, Priority(8)]
-    public async Task Update_Profile_Updates_User_Profile()
+    public async Task AuthTests_WhenUpdatingProfile_ShouldUpdateUserProfile()
     {
         // Arrange
         await app.AuthenticateAsUser(TEST_EMAIL, TEST_PASSWORD);
@@ -153,10 +151,10 @@ public class AuthTests(IntegrationApp app) : TestBase<IntegrationApp>
             Ages: new List<int> { 31, 29, 6, 1 },
             DietaryPreferences: new List<string> { "Vegan" }
         );
-    
+
         // Act
         var response = await app.Customer.PUTAsync<UpdateProfileEndpoint, UpdateUserProfileRequest, UserProfileResponse>(request);
-    
+
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var result = response.Result;

@@ -1,9 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using FastEndpoints;
-using ErrorOr;
 using FastEndpoints.Testing;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,8 +15,8 @@ namespace ZakupekApi.IntegrationTests;
 [DisableWafCache]
 public class IntegrationApp : AppFixture<Program>
 {
-    public HttpClient Customer { get; private set; }
-    
+    public HttpClient Customer { get; private set; } = null!;
+
     protected override async ValueTask SetupAsync()
     {
         Customer = CreateClient(c =>
@@ -55,10 +53,10 @@ public class IntegrationApp : AppFixture<Program>
         using var scope = Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         context.Database.EnsureDeleted();
-        
+
         return ValueTask.CompletedTask;
     }
-    
+
     public async Task ResetDatabaseAsync()
     {
         using var scope = Services.CreateScope();
@@ -66,7 +64,7 @@ public class IntegrationApp : AppFixture<Program>
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
     }
-    
+
     public async Task<AuthResponse> AuthenticateAsUser(string email = "user@example.com", string password = "Password123!")
     {
         var registerRequest = new RegisterRequest(
@@ -80,7 +78,7 @@ public class IntegrationApp : AppFixture<Program>
 
         // Register a new user
         var response = await Customer.POSTAsync<RegisterEndpoint, RegisterRequest, AuthResponse>(registerRequest);
-        
+
         if (response.Response.StatusCode != HttpStatusCode.OK)
         {
             throw new Exception("Failed to register user");

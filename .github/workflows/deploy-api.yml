@@ -1,8 +1,11 @@
 name: Deploy Zakupek API
 
 on:
+  workflow_call:
   push:
     branches: [ main ]
+    paths-ignore:
+      - '.github/workflows/test-and-deploy.yml'
 
 jobs:
   build-and-deploy:

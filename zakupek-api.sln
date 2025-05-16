@@ -38,6 +38,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZakupekApi.Wrapper.Contract
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZakupekApi.Wrapper.Abstraction", "extensions\Wrapper\src\ZakupekApi.Wrapper.Abstraction\ZakupekApi.Wrapper.Abstraction.csproj", "{D7169CC9-AC31-4315-9285-231D869069B7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{333F6CFD-0CBF-47D2-909D-B30C2F08193A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZakupekApi.IntegrationTests", "apps\tests\ZakupekApi.IntegrationTests\ZakupekApi.IntegrationTests.csproj", "{E99EF4E8-4618-41FF-99CA-802A392F95C7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +61,8 @@ Global
 		{D20D2067-E333-46C5-8AE0-02078077E1D2} = {8C1F987D-681E-4DC9-A2DF-D047079A532B}
 		{8F667610-07AF-4948-88AB-9EA95891A1B7} = {8C1F987D-681E-4DC9-A2DF-D047079A532B}
 		{D7169CC9-AC31-4315-9285-231D869069B7} = {8C1F987D-681E-4DC9-A2DF-D047079A532B}
+		{333F6CFD-0CBF-47D2-909D-B30C2F08193A} = {709A3213-063D-4468-A6CC-4F7FD4D17CBE}
+		{E99EF4E8-4618-41FF-99CA-802A392F95C7} = {333F6CFD-0CBF-47D2-909D-B30C2F08193A}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{6FCFD183-4F00-4B65-93F2-719878322603}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -79,5 +85,9 @@ Global
 		{D7169CC9-AC31-4315-9285-231D869069B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7169CC9-AC31-4315-9285-231D869069B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7169CC9-AC31-4315-9285-231D869069B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E99EF4E8-4618-41FF-99CA-802A392F95C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E99EF4E8-4618-41FF-99CA-802A392F95C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E99EF4E8-4618-41FF-99CA-802A392F95C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E99EF4E8-4618-41FF-99CA-802A392F95C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

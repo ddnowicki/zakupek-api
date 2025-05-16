@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="FakeItEasy" Version="8.1.0" />
+    <PackageReference Include="FastEndpoints.Testing" Version="6.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.16" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="Shouldly" Version="4.3.0" />
+    <PackageReference Include="xunit.v3" Version="2.0.2"/>
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ZakupekApi\ZakupekApi.csproj" />
+    <ProjectReference Include="..\..\..\extensions\Database\src\ZakupekApi.Db\ZakupekApi.Db.csproj" />
+    <ProjectReference Include="..\..\..\extensions\Wrapper\src\ZakupekApi.Wrapper\ZakupekApi.Wrapper.csproj" />
+    <ProjectReference Include="..\..\..\extensions\Wrapper\src\ZakupekApi.Wrapper.Contract\ZakupekApi.Wrapper.Contract.csproj" />
+  </ItemGroup>
+</Project>

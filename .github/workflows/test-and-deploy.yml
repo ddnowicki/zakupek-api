@@ -1,0 +1,40 @@
+name: Test and Deploy Zakupek API
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Build test Docker image
+        run: docker build -t zakupek-api-tests -f Dockerfile.tests .
+      
+      - name: Create test results directory
+        run: mkdir -p testresults
+        
+      - name: Run tests in Docker
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/testresults:/testresults \
+            zakupek-api-tests
+      
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: testresults/**/*.trx
+          retention-days: 7
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/deploy-api.yml

@@ -22,12 +22,12 @@ jobs:
       run: docker container rm ${{ vars.API_CONTAINER_NAME }} || true
 
     - name: Run new container
-      run: |
-        docker run --detach \
-          --name ${{ vars.API_CONTAINER_NAME }} \
-          --publish ${{ vars.API_PORT }}:8080 \
-          --restart always \
-          -e ConnectionStrings__DefaultConnection=${{ secrets.PROD_CONNECTION_STRING }} \
-          -e JwtSettings__SecretKey=${{ secrets.PROD_JWT_SECRET }} \
-          -e OpenRouter__ApiKey=${{ secrets.PROD_OPENROUTER_API_KEY }} \
-          ${{ vars.API_CONTAINER_NAME }}
+      run: >-
+        docker run --detach
+        --name ${{ vars.API_CONTAINER_NAME }}
+        --publish ${{ vars.API_PORT }}:8080
+        --restart always
+        -e ConnectionStrings__DefaultConnection='${{ secrets.PROD_CONNECTION_STRING }}'
+        -e JwtSettings__SecretKey='${{ secrets.PROD_JWT_SECRET }}'
+        -e OpenRouter__ApiKey='${{ secrets.PROD_OPENROUTER_API_KEY }}'
+        ${{ vars.API_CONTAINER_NAME }}

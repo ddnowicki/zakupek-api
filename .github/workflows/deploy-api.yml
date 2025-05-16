@@ -12,24 +12,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Create appsettings.Production.json
-      working-directory: apps/src/ZakupekApi
-      run: |
-        echo '{
-          "ConnectionStrings": {
-            "DefaultConnection": "${{ secrets.PROD_CONNECTION_STRING }}"
-          },
-          "JwtSettings": {
-            "SecretKey": "${{ secrets.PROD_JWT_SECRET }}",
-            "Issuer": "ZakupekApi",
-            "Audience": "ZakupekApiClients"
-          },
-          "OpenRouter": {
-            "BaseUrl": "https://openrouter.ai/api/v1/",
-            "ApiKey": "${{ secrets.PROD_OPENROUTER_API_KEY }}"
-          }
-        }' > appsettings.Production.json
-
     - name: Build Docker image
       run: docker build -t ${{ vars.API_CONTAINER_NAME }} .
 
@@ -45,4 +27,7 @@ jobs:
           --name ${{ vars.API_CONTAINER_NAME }} \
           --publish ${{ vars.API_PORT }}:8080 \
           --restart always \
+          -e ConnectionStrings__DefaultConnection=${{ secrets.PROD_CONNECTION_STRING }} \
+          -e JwtSettings__SecretKey=${{ secrets.PROD_JWT_SECRET }} \
+          -e OpenRouter__ApiKey=${{ secrets.PROD_OPENROUTER_API_KEY }} \
           ${{ vars.API_CONTAINER_NAME }}

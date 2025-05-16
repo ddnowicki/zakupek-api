@@ -1,7 +1,8 @@
 name: Deploy Zakupek API
 
 on:
-  workflow_call:
+  push:
+    branches: [ main ]
 
 jobs:
   build-and-deploy:
@@ -10,13 +11,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
-    - name: Create .env file
-      working-directory: apps/src/ZakupekApi
-      run: |
-        echo "ConnectionStrings__DefaultConnection=${{ secrets.PROD_CONNECTION_STRING }}" >> .env
-        echo "JwtSettings__SecretKey=${{ secrets.PROD_JWT_SECRET }}" >> .env
-        echo "OpenRouter__ApiKey=${{ secrets.PROD_OPENROUTER_API_KEY }}" >> .env
 
     - name: Build Docker image
       run: docker build -t ${{ vars.API_CONTAINER_NAME }} .
@@ -28,10 +22,12 @@ jobs:
       run: docker container rm ${{ vars.API_CONTAINER_NAME }} || true
 
     - name: Run new container
-      run: |
-        docker run --detach \
-          --name ${{ vars.API_CONTAINER_NAME }} \
-          --publish ${{ vars.API_PORT }}:8080 \
-          --env-file apps/src/ZakupekApi/.env \
-          --restart always \
-          ${{ vars.API_CONTAINER_NAME }}
+      run: >-
+        docker run --detach
+        --name ${{ vars.API_CONTAINER_NAME }}
+        --publish ${{ vars.API_PORT }}:8080
+        --restart always
+        -e ConnectionStrings__DefaultConnection='${{ secrets.PROD_CONNECTION_STRING }}'
+        -e JwtSettings__SecretKey='${{ secrets.PROD_JWT_SECRET }}'
+        -e OpenRouter__ApiKey='${{ secrets.PROD_OPENROUTER_API_KEY }}'
+        ${{ vars.API_CONTAINER_NAME }}

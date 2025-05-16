@@ -26,7 +26,7 @@ A .NET 8 based ASP.NET Core Web API for AI-assisted shopping list generation and
 
 1. Clone the repository  
    ```bash
-   git clone https://github.com/<owner>/zakupek-api.git
+   git clone https://github.com/ddnowicki/zakupek-api.git
    ```
 2. Configure settings in `appsettings.json` or environment variables:
    ```json
@@ -60,6 +60,7 @@ A .NET 8 based ASP.NET Core Web API for AI-assisted shopping list generation and
 - `dotnet run` — launch API (profiles defined in `launchSettings.json`)
 - `dotnet ef migrations add <Name>` — create a new migration
 - `dotnet ef database update` — apply migrations
+- `dotnet test tests/` — run all unit and integration tests
 - Launch profile `Development` opens Swagger UI at `/swagger`
 
 ## API Endpoints

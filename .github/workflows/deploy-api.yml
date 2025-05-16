@@ -1,7 +1,8 @@
 name: Deploy Zakupek API
 
 on:
-  workflow_call:
+  push:
+    branches: [ main ]
 
 jobs:
   build-and-deploy:
@@ -11,12 +12,23 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Create .env file
+    - name: Create appsettings.Production.json
       working-directory: apps/src/ZakupekApi
       run: |
-        echo "ConnectionStrings__DefaultConnection=${{ secrets.PROD_CONNECTION_STRING }}" >> .env
-        echo "JwtSettings__SecretKey=${{ secrets.PROD_JWT_SECRET }}" >> .env
-        echo "OpenRouter__ApiKey=${{ secrets.PROD_OPENROUTER_API_KEY }}" >> .env
+        echo '{
+          "ConnectionStrings": {
+            "DefaultConnection": "${{ secrets.PROD_CONNECTION_STRING }}"
+          },
+          "JwtSettings": {
+            "SecretKey": "${{ secrets.PROD_JWT_SECRET }}",
+            "Issuer": "ZakupekApi",
+            "Audience": "ZakupekApiClients"
+          },
+          "OpenRouter": {
+            "BaseUrl": "https://openrouter.ai/api/v1/",
+            "ApiKey": "${{ secrets.PROD_OPENROUTER_API_KEY }}"
+          }
+        }' > appsettings.Production.json
 
     - name: Build Docker image
       run: docker build -t ${{ vars.API_CONTAINER_NAME }} .
@@ -32,6 +44,5 @@ jobs:
         docker run --detach \
           --name ${{ vars.API_CONTAINER_NAME }} \
           --publish ${{ vars.API_PORT }}:8080 \
-          --env-file apps/src/ZakupekApi/.env \
           --restart always \
           ${{ vars.API_CONTAINER_NAME }}

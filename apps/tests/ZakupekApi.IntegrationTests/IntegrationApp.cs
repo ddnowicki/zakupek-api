@@ -1,22 +1,30 @@
+using System.Net;
+using System.Net.Http.Headers;
 using FastEndpoints;
+using ErrorOr;
 using FastEndpoints.Testing;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using ZakupekApi.Auth.Endpoints;
 using ZakupekApi.Db.Data;
+using ZakupekApi.Wrapper.Contract.Auth.Request;
+using ZakupekApi.Wrapper.Contract.Auth.Response;
 
 namespace ZakupekApi.IntegrationTests;
 
 [DisableWafCache]
 public class IntegrationApp : AppFixture<Program>
 {
-    public HttpClient Client { get; private set; }
+    public HttpClient Customer { get; private set; }
     
     protected override async ValueTask SetupAsync()
     {
-        // Configure test HttpClient
-        Client = CreateClient();
+        Customer = CreateClient(c =>
+        {
+            c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "test-token");
+        });
 
         // Get the DbContext and ensure database is created
         using var scope = Services.CreateScope();
@@ -44,11 +52,42 @@ public class IntegrationApp : AppFixture<Program>
 
     protected override ValueTask TearDownAsync()
     {
-        // Clean up after each test
         using var scope = Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         context.Database.EnsureDeleted();
         
         return ValueTask.CompletedTask;
+    }
+    
+    public async Task ResetDatabaseAsync()
+    {
+        using var scope = Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
+    }
+    
+    public async Task<AuthResponse> AuthenticateAsUser(string email = "user@example.com", string password = "Password123!")
+    {
+        var registerRequest = new RegisterRequest(
+            Email: email,
+            Password: password,
+            UserName: "Test User",
+            HouseholdSize: 1,
+            Ages: [30],
+            DietaryPreferences: ["Vegetarian"]
+        );
+
+        // Register a new user
+        var response = await Customer.POSTAsync<RegisterEndpoint, RegisterRequest, AuthResponse>(registerRequest);
+        
+        if (response.Response.StatusCode != HttpStatusCode.OK)
+        {
+            throw new Exception("Failed to register user");
+        }
+
+        Customer.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", response.Result.AccessToken);
+
+        return response.Result;
     }
 }

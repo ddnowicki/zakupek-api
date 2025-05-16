@@ -18,29 +18,27 @@ var bld = WebApplication.CreateBuilder();
 var jwtSettings = bld.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? throw new ArgumentNullException();
 
-// if (!bld.Environment.IsEnvironment("IntegrationTests"))
-// {
-    var connectionString = bld.Configuration.GetConnectionString("DefaultConnection");
 
-    bld.Services.AddDbContext<AppDbContext>(options =>
-        options.UseMySql(
-            connectionString,
-            ServerVersion.AutoDetect(connectionString),
-            mySqlOptions => mySqlOptions
-                .EnableRetryOnFailure(
-                    maxRetryCount: 3,
-                    maxRetryDelay: TimeSpan.FromSeconds(5),
-                    errorNumbersToAdd: null)
-                .CommandTimeout(30)
-        ));
-// }
+var connectionString = bld.Configuration.GetConnectionString("DefaultConnection");
+
+bld.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(
+        connectionString,
+        ServerVersion.AutoDetect(connectionString),
+        mySqlOptions => mySqlOptions
+            .EnableRetryOnFailure(
+                maxRetryCount: 3,
+                maxRetryDelay: TimeSpan.FromSeconds(5),
+                errorNumbersToAdd: null)
+            .CommandTimeout(30)
+    ));
 
 bld.Services.Configure<OpenRouterSettings>(
     bld.Configuration.GetSection("OpenRouter"));
 
 bld.Services.AddHttpClient<ShoppingListService>()
-    .AddTransientHttpErrorPolicy(p => 
-        p.WaitAndRetryAsync(3, retryAttempt => 
+    .AddTransientHttpErrorPolicy(p =>
+        p.WaitAndRetryAsync(3, retryAttempt =>
             TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
 
 bld.Services.AddCors(options =>
@@ -50,8 +48,8 @@ bld.Services.AddCors(options =>
         options.AddPolicy("MyCors", builder =>
         {
             builder.WithOrigins("http://localhost:3001")
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+                .AllowAnyMethod()
+                .AllowAnyHeader();
         });
     });
 });
@@ -73,27 +71,27 @@ var app = bld.Build();
 app.UseCors("MyCors")
     .UseAuthentication()
     .UseAuthorization()
-    .UseFastEndpoints(
-            c =>
+    .UseFastEndpoints(c =>
+    {
+        c.Errors.UseProblemDetails();
+        c.Endpoints.Configurator =
+            ep =>
             {
-                c.Errors.UseProblemDetails();
-                c.Endpoints.Configurator =
-                    ep =>
-                    {
-                        if (ep.ResDtoType.IsAssignableTo(typeof(IErrorOr)))
-                        {
-                            ep.DontAutoSendResponse();
-                            ep.PostProcessor<ResponseSender>(Order.After);
-                            ep.Description(
-                                b => b.ClearDefaultProduces()
-                                    .Produces(200, ep.ResDtoType.GetGenericArguments()[0])
-                                    .ProducesProblemDetails());
-                        }
-                    };
-            })
+                if (ep.ResDtoType.IsAssignableTo(typeof(IErrorOr)))
+                {
+                    ep.DontAutoSendResponse();
+                    ep.PostProcessor<ResponseSender>(Order.After);
+                    ep.Description(b => b.ClearDefaultProduces()
+                        .Produces(200, ep.ResDtoType.GetGenericArguments()[0])
+                        .ProducesProblemDetails());
+                }
+            };
+    })
     .UseSwaggerGen();
 
 app.Run();
 
 // Making the Program class public for testing purposes
-public partial class Program { }
+public partial class Program
+{
+}

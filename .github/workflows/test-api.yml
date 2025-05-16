@@ -1,4 +1,4 @@
-name: Test and Deploy Zakupek API
+name: Test Zakupek API
 
 on:
   push:
@@ -33,8 +33,3 @@ jobs:
           name: test-results
           path: testresults/**/*.trx
           retention-days: 7
-
-  deploy:
-    needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/deploy-api.yml

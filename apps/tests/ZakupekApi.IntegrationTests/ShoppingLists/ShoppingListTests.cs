@@ -37,7 +37,9 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
         );
 
         // Act
-        var response = await app.Customer.POSTAsync<CreateShoppingListEndpoint, CreateShoppingListRequest, ShoppingListDetailResponse>(request);
+        var response =
+            await app.Customer
+                .POSTAsync<CreateShoppingListEndpoint, CreateShoppingListRequest, ShoppingListDetailResponse>(request);
 
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -45,7 +47,7 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
         response.Result.Title.ShouldBe(TEST_LIST_TITLE);
         response.Result.Products.Count().ShouldBe(2);
         response.Result.StoreName.ShouldBe("Lidl");
-        
+
         // Save the created list ID for subsequent tests
         createdListId = response.Result.Id;
     }
@@ -62,7 +64,9 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
         );
 
         // Act
-        var response = await app.Customer.POSTAsync<CreateShoppingListEndpoint, CreateShoppingListRequest, ShoppingListDetailResponse>(request);
+        var response =
+            await app.Customer
+                .POSTAsync<CreateShoppingListEndpoint, CreateShoppingListRequest, ShoppingListDetailResponse>(request);
 
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -83,7 +87,10 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
         );
 
         // Act
-        var response = await app.Customer.POSTAsync<CreateShoppingListEndpoint, CreateShoppingListRequest, ErrorOr<ShoppingListDetailResponse>>(request);
+        var response =
+            await app.Customer
+                .POSTAsync<CreateShoppingListEndpoint, CreateShoppingListRequest, ErrorOr<ShoppingListDetailResponse>>(
+                    request);
 
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
@@ -96,7 +103,9 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
         await ShoppingListTests_WhenCreatingWithValidData_ShouldCreateList();
 
         // Act
-        var response = await app.Customer.GETAsync<GetShoppingListsEndpoint, EmptyRequest, ShoppingListsResponse>(new EmptyRequest());
+        var response =
+            await app.Customer.GETAsync<GetShoppingListsEndpoint, EmptyRequest, ShoppingListsResponse>(
+                new EmptyRequest());
 
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -116,7 +125,9 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
         var request = new GetShoppingListByIdRequest { Id = createdListId };
 
         // Act
-        var response = await app.Customer.GETAsync<GetShoppingListByIdEndpoint, GetShoppingListByIdRequest, ShoppingListDetailResponse>(request);
+        var response =
+            await app.Customer
+                .GETAsync<GetShoppingListByIdEndpoint, GetShoppingListByIdRequest, ShoppingListDetailResponse>(request);
 
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -133,7 +144,10 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
         var request = new GetShoppingListByIdRequest { Id = 9999 }; // Non-existent ID
 
         // Act
-        var response = await app.Customer.GETAsync<GetShoppingListByIdEndpoint, GetShoppingListByIdRequest, ErrorOr<ShoppingListDetailResponse>>(request);
+        var response =
+            await app.Customer
+                .GETAsync<GetShoppingListByIdEndpoint, GetShoppingListByIdRequest, ErrorOr<ShoppingListDetailResponse>>(
+                    request);
 
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
@@ -143,7 +157,9 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
     public async Task ShoppingListTests_WhenGettingListsAsGuest_ShouldReturnUnauthorized()
     {
         // Act - Use non-authenticated client
-        var response = await app.Client.GETAsync<GetShoppingListsEndpoint, EmptyRequest, ErrorOr<ShoppingListsResponse>>(new EmptyRequest());
+        var response =
+            await app.Client.GETAsync<GetShoppingListsEndpoint, EmptyRequest, ErrorOr<ShoppingListsResponse>>(
+                new EmptyRequest());
 
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
@@ -154,10 +170,11 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
     {
         // Arrange - Create a list first
         await ShoppingListTests_WhenCreatingWithValidData_ShouldCreateList();
-        
+
         var updateRequest = new UpdateShoppingListRequest(
             Title: "Updated Shopping List",
-            Products: [
+            Products:
+            [
                 new(Id: null, Name: "Milk", Quantity: 3), // Updated quantity
                 new(Id: null, Name: "Eggs", Quantity: 12) // New item
             ],
@@ -172,7 +189,9 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
         );
 
         // Act
-        var response = await app.Customer.PUTAsync<UpdateShoppingListEndpoint, UpdateShoppingListEndpointRequest, bool>(endpointRequest);
+        var response =
+            await app.Customer.PUTAsync<UpdateShoppingListEndpoint, UpdateShoppingListEndpointRequest, bool>(
+                endpointRequest);
 
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -180,8 +199,11 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
 
         // Verify the update worked by getting the list
         var getRequest = new GetShoppingListByIdRequest { Id = createdListId };
-        var getResponse = await app.Customer.GETAsync<GetShoppingListByIdEndpoint, GetShoppingListByIdRequest, ShoppingListDetailResponse>(getRequest);
-        
+        var getResponse =
+            await app.Customer
+                .GETAsync<GetShoppingListByIdEndpoint, GetShoppingListByIdRequest, ShoppingListDetailResponse>(
+                    getRequest);
+
         getResponse.Result.Title.ShouldBe("Updated Shopping List");
         getResponse.Result.StoreName.ShouldBe("Auchan");
         getResponse.Result.Products.Count().ShouldBe(2); // Original bread was removed
@@ -204,7 +226,9 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
         );
 
         // Act
-        var response = await app.Customer.PUTAsync<UpdateShoppingListEndpoint, UpdateShoppingListEndpointRequest, ErrorOr<bool>>(endpointRequest);
+        var response =
+            await app.Customer.PUTAsync<UpdateShoppingListEndpoint, UpdateShoppingListEndpointRequest, ErrorOr<bool>>(
+                endpointRequest);
 
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
@@ -220,7 +244,8 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
         var deleteRequest = new DeleteShoppingListRequest { Id = createdListId };
 
         // Act
-        var response = await app.Customer.DELETEAsync<DeleteShoppingListEndpoint, DeleteShoppingListRequest, bool>(deleteRequest);
+        var response =
+            await app.Customer.DELETEAsync<DeleteShoppingListEndpoint, DeleteShoppingListRequest, bool>(deleteRequest);
 
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -228,8 +253,11 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
 
         // Verify the list was deleted
         var getRequest = new GetShoppingListByIdRequest { Id = createdListId };
-        var getResponse = await app.Customer.GETAsync<GetShoppingListByIdEndpoint, GetShoppingListByIdRequest, ErrorOr<ShoppingListDetailResponse>>(getRequest);
-        
+        var getResponse =
+            await app.Customer
+                .GETAsync<GetShoppingListByIdEndpoint, GetShoppingListByIdRequest, ErrorOr<ShoppingListDetailResponse>>(
+                    getRequest);
+
         getResponse.Response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
 
@@ -240,7 +268,9 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
         var deleteRequest = new DeleteShoppingListRequest { Id = 9999 };
 
         // Act
-        var response = await app.Customer.DELETEAsync<DeleteShoppingListEndpoint, DeleteShoppingListRequest, ErrorOr<bool>>(deleteRequest);
+        var response =
+            await app.Customer.DELETEAsync<DeleteShoppingListEndpoint, DeleteShoppingListRequest, ErrorOr<bool>>(
+                deleteRequest);
 
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
@@ -255,26 +285,82 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
             PlannedShoppingDate: DateTime.UtcNow.AddDays(3),
             StoreName: "Lidl"
         );
-        
+
+        // Create a realistic OpenRouter response using anonymous objects
+        var mockResponse = new
+        {
+            id = "cmpl-123456789",
+            model = "anthropic/claude-3-opus",
+            created = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            choices = new[]
+            {
+                new
+                {
+                    index = 0,
+                    message = new
+                    {
+                        role = "assistant",
+                        content = System.Text.Json.JsonSerializer.Serialize(new[]
+                        {
+                            new { name = "Mleko", quantity = 2 },
+                            new { name = "Chleb", quantity = 1 },
+                            new { name = "Masło", quantity = 1 },
+                            new { name = "Jajka", quantity = 10 },
+                            new { name = "Ser żółty", quantity = 200 },
+                            new { name = "Szynka", quantity = 150 },
+                            new { name = "Pomidory", quantity = 6 },
+                            new { name = "Ogórki", quantity = 4 },
+                            new { name = "Cebula", quantity = 2 },
+                            new { name = "Ziemniaki", quantity = 1000 }
+                        })
+                    },
+                    finish_reason = "stop"
+                }
+            },
+            usage = new { prompt_tokens = 512, completion_tokens = 286, total_tokens = 798 }
+        };
+
+        var mockJsonResponse = System.Text.Json.JsonSerializer.Serialize(mockResponse);
+
         A.CallTo(app.FakeHandler)
             .WithReturnType<Task<HttpResponseMessage>>()
             .Where(call => call.Method.Name == "SendAsync")
             .ReturnsLazily(() => Task.FromResult(new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent("FakeItEasy is fun")
+                Content = new StringContent(mockJsonResponse, System.Text.Encoding.UTF8, "application/json")
             }));
 
         // Act
-        var response = await app.Customer.POSTAsync<GenerateShoppingListEndpoint, GenerateShoppingListRequest, ShoppingListDetailResponse>(request);
-
+        var response =
+            await app.Customer
+                .POSTAsync<GenerateShoppingListEndpoint, GenerateShoppingListRequest, ShoppingListDetailResponse>(
+                    request);
+        
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.OK);
         response.Result.ShouldNotBeNull();
+        
         response.Result.Title.ShouldBe("AI Generated List");
         response.Result.StoreName.ShouldBe("Lidl");
         response.Result.Source.ShouldBe("AI generated");
         response.Result.Products.ShouldNotBeEmpty();
+        response.Result.Products.Count().ShouldBe(10);
+        response.Result.Id.ShouldBeGreaterThan(0);
+        
+        var products = response.Result.Products.ToList();
+        
+        var mleko = products.FirstOrDefault(p => p.Name == "Mleko");
+        mleko.ShouldNotBeNull();
+        mleko.Quantity.ShouldBe(2);
+        
+        var chleb = products.FirstOrDefault(p => p.Name == "Chleb");
+        chleb.ShouldNotBeNull();
+        chleb.Quantity.ShouldBe(1);
+        
+        var jajka = products.FirstOrDefault(p => p.Name == "Jajka");
+        jajka.ShouldNotBeNull();
+        jajka.Quantity.ShouldBe(10);
     }
 
     [Fact, Priority(14)]
@@ -288,7 +374,10 @@ public class ShoppingListTests(IntegrationApp app) : TestBase<IntegrationApp>
         );
 
         // Act - Use non-authenticated client
-        var response = await app.Client.POSTAsync<GenerateShoppingListEndpoint, GenerateShoppingListRequest, ErrorOr<ShoppingListDetailResponse>>(request);
+        var response =
+            await app.Client
+                .POSTAsync<GenerateShoppingListEndpoint, GenerateShoppingListRequest,
+                    ErrorOr<ShoppingListDetailResponse>>(request);
 
         // Assert
         response.Response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
